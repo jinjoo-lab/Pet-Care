@@ -32,6 +32,12 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/auth/logout")
+    public ResponseEntity<Void> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.noContent().build();
+    }
+
     // 회원 조회
     @GetMapping("/{id}")
     public ResponseEntity<MemberResponse> getMemberById(@RequestParam("id") Long id) {
