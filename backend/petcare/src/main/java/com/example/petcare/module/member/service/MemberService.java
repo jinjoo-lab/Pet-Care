@@ -1,15 +1,13 @@
 package com.example.petcare.module.member.service;
 
-import com.example.petcare.module.member.dto.request.ResetPasswordRequest;
-import com.example.petcare.module.member.dto.request.SignUpRequest;
-import com.example.petcare.module.member.dto.request.UpdateMemberRequest;
-import com.example.petcare.module.member.dto.request.UpdatePasswordRequest;
+import com.example.petcare.module.member.dto.request.*;
 import com.example.petcare.module.member.dto.response.MemberResponse;
 import com.example.petcare.module.member.dto.response.ResetPasswordResponse;
 import com.example.petcare.module.member.entity.Member;
 import com.example.petcare.module.member.mapper.MemberMapper;
 import com.example.petcare.module.member.repository.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +34,14 @@ public class MemberService {
     public MemberResponse signUp(SignUpRequest request) {
         Member member = memberRepository.save(memberMapper.signUpRequestToMember(request));
         return memberMapper.memberToMemberResponse(member);
+    }
+
+    @Transactional
+    public void signIn(SignInRequest request, HttpSession session) {
+        Member member = memberRepository.findByEmailAndPassword(request.getEmail(),request.getPassword())
+                .orElseThrow(EntityNotFoundException::new);
+
+        session.setAttribute("user", member);
     }
 
     @Transactional

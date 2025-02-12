@@ -1,12 +1,10 @@
 package com.example.petcare.module.member.controller;
 
-import com.example.petcare.module.member.dto.request.ResetPasswordRequest;
-import com.example.petcare.module.member.dto.request.SignUpRequest;
-import com.example.petcare.module.member.dto.request.UpdateMemberRequest;
-import com.example.petcare.module.member.dto.request.UpdatePasswordRequest;
+import com.example.petcare.module.member.dto.request.*;
 import com.example.petcare.module.member.dto.response.MemberResponse;
 import com.example.petcare.module.member.dto.response.ResetPasswordResponse;
 import com.example.petcare.module.member.service.MemberService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,9 +18,16 @@ public class MemberController {
     }
 
     // 회원 가입
-    @PostMapping
+    @PostMapping("/signup")
     public ResponseEntity<MemberResponse> signUp(@RequestBody SignUpRequest request) {
         return ResponseEntity.ok(memberService.signUp(request));
+    }
+
+    // 로그인
+    @PostMapping("/signin")
+    public ResponseEntity<Void> signIn(@RequestBody SignInRequest request, HttpSession session) {
+        memberService.signIn(request, session);
+        return ResponseEntity.ok().build();
     }
 
     // 회원 조회
