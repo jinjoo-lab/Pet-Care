@@ -45,7 +45,7 @@ public class MemberService {
 
         session.setAttribute("user", member);
 
-        response.addHeader("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/; HttpOnly; SameSite=None; Secure");
+       // response.addHeader("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/; HttpOnly; SameSite=None; Secure");
     }
 
     public DuplicateEmailResponse duplicateEmail(String email) {
