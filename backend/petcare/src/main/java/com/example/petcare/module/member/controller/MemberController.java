@@ -32,6 +32,7 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
+    // 로그아웃
     @GetMapping("/auth/logout")
     public ResponseEntity<Void> logout(HttpSession session) {
         session.invalidate();
