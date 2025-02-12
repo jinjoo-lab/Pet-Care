@@ -1,5 +1,6 @@
 package com.example.petcare.module.member.entity;
 
+import com.example.petcare.global.audit.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,5 +32,9 @@ public class Member {
     public void mandateAdmin() {
         this.role = Role.ADMIN;
     }
+
+    @Embedded
+    @Column(nullable = false)
+    private BaseEntity baseEntity;
 }
 
