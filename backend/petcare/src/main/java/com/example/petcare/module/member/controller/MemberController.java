@@ -19,13 +19,13 @@ public class MemberController {
     }
 
     // 회원 가입
-    @PostMapping("/signup")
+    @PostMapping
     public ResponseEntity<MemberResponse> signUp(@RequestBody SignUpRequest request) {
         return ResponseEntity.ok(memberService.signUp(request));
     }
 
     // 로그인
-    @PostMapping("/signin")
+    @PostMapping("/auth/login")
     public ResponseEntity<Void> signIn(@RequestBody SignInRequest request, HttpSession session) {
         memberService.signIn(request, session);
         return ResponseEntity.ok().build();
