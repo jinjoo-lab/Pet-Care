@@ -8,6 +8,7 @@ import com.example.petcare.module.member.entity.Member;
 import com.example.petcare.module.member.mapper.MemberMapper;
 import com.example.petcare.module.member.repository.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,11 +39,13 @@ public class MemberService {
     }
 
     @Transactional
-    public void signIn(SignInRequest request, HttpSession session) {
+    public void signIn(SignInRequest request, HttpServletResponse response, HttpSession session) {
         Member member = memberRepository.findByEmailAndPassword(request.getEmail(),request.getPassword())
                 .orElseThrow(EntityNotFoundException::new);
 
         session.setAttribute("user", member);
+
+        response.addHeader("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/; HttpOnly; SameSite=None; Secure");
     }
 
     public DuplicateEmailResponse duplicateEmail(String email) {

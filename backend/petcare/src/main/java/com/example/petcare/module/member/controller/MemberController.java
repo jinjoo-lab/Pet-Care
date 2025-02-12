@@ -5,6 +5,7 @@ import com.example.petcare.module.member.dto.response.DuplicateEmailResponse;
 import com.example.petcare.module.member.dto.response.MemberResponse;
 import com.example.petcare.module.member.dto.response.ResetPasswordResponse;
 import com.example.petcare.module.member.service.MemberService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +27,8 @@ public class MemberController {
 
     // 로그인
     @PostMapping("/auth/login")
-    public ResponseEntity<Void> signIn(@RequestBody SignInRequest request, HttpSession session) {
-        memberService.signIn(request, session);
+    public ResponseEntity<Void> signIn(@RequestBody SignInRequest request, HttpServletResponse response, HttpSession session) {
+        memberService.signIn(request, response, session);
         return ResponseEntity.ok().build();
     }
 
