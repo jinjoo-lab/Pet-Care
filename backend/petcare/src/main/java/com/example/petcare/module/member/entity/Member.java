@@ -37,11 +37,20 @@ public class Member implements Auditable {
         this.email = email;
         this.password = password;
         this.phone = phone;
-        this.role = role;
+        this.role = Role.MEMBER;
+    }
+
+    public void updateMember(String name, String phone) {
+        this.name = name;
+        this.phone = phone;
     }
 
     public void mandateAdmin() {
         this.role = Role.ADMIN;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
     }
 }
 
