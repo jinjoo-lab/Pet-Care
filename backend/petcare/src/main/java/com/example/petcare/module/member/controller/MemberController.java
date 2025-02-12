@@ -1,6 +1,7 @@
 package com.example.petcare.module.member.controller;
 
 import com.example.petcare.module.member.dto.request.*;
+import com.example.petcare.module.member.dto.response.DuplicateEmailResponse;
 import com.example.petcare.module.member.dto.response.MemberResponse;
 import com.example.petcare.module.member.dto.response.ResetPasswordResponse;
 import com.example.petcare.module.member.service.MemberService;
@@ -34,6 +35,11 @@ public class MemberController {
     @GetMapping("/{id}")
     public ResponseEntity<MemberResponse> getMemberById(@RequestParam("id") Long id) {
         return ResponseEntity.ok(memberService.getMemberById(id));
+    }
+
+    @GetMapping("/email/duplicate/{email}")
+    public ResponseEntity<DuplicateEmailResponse> duplicateEmail(@PathVariable("email") String email) {
+        return ResponseEntity.ok(memberService.duplicateEmail(email));
     }
 
     @GetMapping("/email/{email}")

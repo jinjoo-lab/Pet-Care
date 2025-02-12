@@ -1,6 +1,7 @@
 package com.example.petcare.module.member.service;
 
 import com.example.petcare.module.member.dto.request.*;
+import com.example.petcare.module.member.dto.response.DuplicateEmailResponse;
 import com.example.petcare.module.member.dto.response.MemberResponse;
 import com.example.petcare.module.member.dto.response.ResetPasswordResponse;
 import com.example.petcare.module.member.entity.Member;
@@ -42,6 +43,10 @@ public class MemberService {
                 .orElseThrow(EntityNotFoundException::new);
 
         session.setAttribute("user", member);
+    }
+
+    public DuplicateEmailResponse duplicateEmail(String email) {
+        return new DuplicateEmailResponse(memberRepository.existsByEmail(email));
     }
 
     @Transactional
