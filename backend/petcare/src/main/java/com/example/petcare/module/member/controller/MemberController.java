@@ -37,7 +37,7 @@ public class MemberController {
         return ResponseEntity.ok(memberService.getMemberById(id));
     }
 
-    @GetMapping("/email/duplicate/{email}")
+    @GetMapping("/duplicate/{email}")
     public ResponseEntity<DuplicateEmailResponse> duplicateEmail(@PathVariable("email") String email) {
         return ResponseEntity.ok(memberService.duplicateEmail(email));
     }
