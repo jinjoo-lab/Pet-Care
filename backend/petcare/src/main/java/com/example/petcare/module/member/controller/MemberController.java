@@ -10,8 +10,6 @@ import com.example.petcare.module.member.service.MemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/v1/members")
 public class MemberController {
@@ -39,13 +37,13 @@ public class MemberController {
     }
 
     // 비밀 번호 리셋
-    @PatchMapping
+    @PatchMapping("/passwords/reset")
     public ResponseEntity<ResetPasswordResponse> resetPassword(@RequestBody ResetPasswordRequest request) {
         return ResponseEntity.ok(memberService.resetPassword(request));
     }
 
     // 비밀번호 수정 , 회원 수정
-    @PatchMapping
+    @PatchMapping("/passwords")
     public ResponseEntity<MemberResponse> updatePassword(@RequestBody UpdatePasswordRequest request) {
         return ResponseEntity.ok(memberService.updatePassword(request));
     }
