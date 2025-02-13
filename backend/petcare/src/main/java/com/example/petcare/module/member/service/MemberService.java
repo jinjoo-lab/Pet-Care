@@ -39,11 +39,13 @@ public class MemberService {
     }
 
     @Transactional
-    public void signIn(SignInRequest request, HttpServletResponse response, HttpSession session) {
+    public MemberResponse signIn(SignInRequest request, HttpServletResponse response, HttpSession session) {
         Member member = memberRepository.findByEmailAndPassword(request.getEmail(),request.getPassword())
                 .orElseThrow(EntityNotFoundException::new);
 
         session.setAttribute("user", member);
+
+        return memberMapper.memberToMemberResponse(member);
 
        // response.addHeader("Set-Cookie", "JSESSIONID=" + session.getId() + "; Path=/; HttpOnly; SameSite=None; Secure");
     }

@@ -4,9 +4,11 @@ import com.example.petcare.module.member.dto.request.*;
 import com.example.petcare.module.member.dto.response.DuplicateEmailResponse;
 import com.example.petcare.module.member.dto.response.MemberResponse;
 import com.example.petcare.module.member.dto.response.ResetPasswordResponse;
+import com.example.petcare.module.member.entity.Member;
 import com.example.petcare.module.member.service.MemberService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,9 +29,20 @@ public class MemberController {
 
     // 로그인
     @PostMapping("/auth/login")
-    public ResponseEntity<Void> signIn(@RequestBody SignInRequest request, HttpServletResponse response, HttpSession session) {
-        memberService.signIn(request, response, session);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<MemberResponse> signIn(@RequestBody SignInRequest request, HttpServletResponse response, HttpSession session) {
+        return ResponseEntity.ok(memberService.signIn(request, response, session));
+    }
+
+    @GetMapping("/auth/check")
+    public ResponseEntity<MemberResponse> checkSession(HttpSession session) {
+        Member member = (Member) session.getAttribute("user");
+        if (member != null) {
+            return ResponseEntity.ok(
+                    new MemberResponse(member.getMemberId(),member.getName(),member.getEmail(),member.getPhone(),member.getRole())
+            );
+
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     // 로그아웃
