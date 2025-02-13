@@ -1,85 +1,199 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <div id="app">
+    <Navbar />
+    <main class="main-content">
+      <transition name="fade" mode="out-in">
+        <router-view></router-view>
+      </transition>
+    </main>
+    <Footer />
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+<script>
+import Navbar from './components/Nav.vue'
+import Footer from './components/Footer.vue'
+import axios from 'axios'  // axios import 추가
+import { mapActions } from 'vuex'
+
+export default {
+  name: 'App',
+  components: {
+    Navbar,
+    Footer
+  },
+  methods: {
+    ...mapActions(['login']),
+    async checkSession() {
+      try {
+        const response = await axios.get('/api/v1/members/auth/check')
+        if (response.data) {
+          this.login(response.data)
+        }
+      } catch (error) {
+        console.error('세션 체크 실패:', error)
+      }
+    }
+  },
+  mounted() {
+    this.checkSession()
+  }
+}
+</script>
+
+<style>
+/* 전역 리셋 및 기본 스타일 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f8f9fa;
 }
 
-nav {
+/* 앱 컨테이너 */
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 메인 컨텐츠 영역 */
+.main-content {
+  height: 800px; /* 고정 높이 */
+  padding: 20px 0;
   width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f8f9fa;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+/* 공통 컨테이너 스타일 */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
+/* 버튼 공통 스타일 */
+.btn {
   display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
+  padding: 0.8rem 1.5rem;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  text-decoration: none;
 }
 
-nav a:first-of-type {
-  border: 0;
+.btn-primary {
+  background-color: #007bff;
+  color: white;
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #545b62;
+}
+
+/* 페이지 전환 애니메이션 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .main-content {
+    height: auto;
+    min-height: 800px;
   }
 
-  .logo {
-    margin: 0 2rem 0 0;
+  .container {
+    padding: 0 15px;
   }
+}
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+/* 폼 공통 스타일 */
+.form-group {
+  margin-bottom: 1rem;
+}
 
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
 
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+/* 유틸리티 클래스 */
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+/* 카드 스타일 */
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+/* 에러 메시지 스타일 */
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* 성공 메시지 스타일 */
+.success-message {
+  color: #28a745;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
 }
 </style>
