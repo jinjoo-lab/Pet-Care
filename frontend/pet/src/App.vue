@@ -63,23 +63,34 @@ body {
   flex-direction: column;
 }
 
-/* 메인 컨텐츠 영역 */
+/* 메인 컨텐츠 영역 수정 */
 .main-content {
-  height: 800px; /* 고정 높이 */
-  padding: 20px 0;
+  min-height: calc(100vh - 120px); /* 헤더/푸터 고려한 최소 높이 */
+  padding: 40px 0;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #f8f9fa;
+  background-color: #f0f0f0; /* 회색 배경으로 변경 */
 }
 
-/* 공통 컨테이너 스타일 */
+/* 카드 스타일 수정 */
+.card {
+  background: white;
+  border-radius: 12px; /* 모서리 더 부드럽게 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* 그림자 더 부드럽게 */
+  padding: 2rem;
+  width: 100%;
+  max-width: 1000px; /* 최대 너비 설정 */
+  margin: 0 auto;
+}
+
+/* 컨테이너 스타일 수정 */
 .container {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 40px; /* 좌우 여백 증가 */
 }
 
 /* 버튼 공통 스타일 */
@@ -123,15 +134,18 @@ body {
   opacity: 0;
 }
 
-/* 반응형 디자인 */
+/* 반응형 디자인 수정 */
 @media (max-width: 768px) {
   .main-content {
-    height: auto;
-    min-height: 800px;
+    padding: 20px 0;
   }
 
   .container {
-    padding: 0 15px;
+    padding: 0 20px;
+  }
+
+  .card {
+    padding: 1.5rem;
   }
 }
 
@@ -175,14 +189,6 @@ body {
 .mb-3 { margin-bottom: 1.5rem; }
 .mb-4 { margin-bottom: 2rem; }
 
-/* 카드 스타일 */
-.card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-}
-
 /* 에러 메시지 스타일 */
 .error-message {
   color: #dc3545;
@@ -195,5 +201,21 @@ body {
   color: #28a745;
   font-size: 0.875rem;
   margin-top: 0.25rem;
+}
+
+main {
+  min-height: calc(100vh - 60px);  /* 헤더/푸터를 제외한 최소 높이 설정 */
+  padding: 40px 0;  /* 상하 여백 추가 */
+}
+
+/* 반응형 여백 조정 */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 15px;
+  }
+  
+  main {
+    padding: 20px 0;
+  }
 }
 </style>

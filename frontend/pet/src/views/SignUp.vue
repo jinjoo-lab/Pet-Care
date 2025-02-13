@@ -181,12 +181,18 @@ export default {
   
   <style scoped>
 .signup-container {
-  max-width: 500px;
-  margin: 2rem auto;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  margin-left: 15%; /* 더 왼쪽으로 이동 (20%에서 15%로 변경) */
   padding: 2rem;
+}
+
+.signup-form {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
 }
 
 h2 {
@@ -293,7 +299,7 @@ input.verified {
 
 @media (max-width: 768px) {
   .signup-container {
-    margin: 1rem;
+    margin-left: auto; /* 모바일에서는 중앙 정렬 */
     padding: 1rem;
   }
 }
