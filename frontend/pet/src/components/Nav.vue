@@ -8,8 +8,20 @@
     
     <div class="nav-menu">
       <router-link to="/shop" class="nav-item">쇼핑몰</router-link>
-      <router-link to="/pet-management" class="nav-item">내 펫 관리</router-link>
-      <router-link to="/pet-sitting" class="nav-item">펫시팅</router-link>
+      <div class="dropdown">
+        <span class="dropdown-trigger" @click="togglePetMenu">내 펫 관리</span>
+        <div v-show="showPetMenu" class="dropdown-menu">
+          <router-link to="/pets" class="dropdown-item">펫 보기</router-link>
+          <router-link to="/find-sitter" class="dropdown-item">시터 찾기</router-link>
+        </div>
+      </div>
+      <div class="dropdown">
+        <span class="dropdown-trigger" @click="togglePetsittingMenu">펫시팅</span>
+        <div v-show="showPetsittingMenu" class="dropdown-menu">
+          <router-link to="/petsitter/register" class="dropdown-item">펫시터 등록</router-link>
+          <router-link to="/petsitter/schedule" class="dropdown-item">내 일정</router-link>
+        </div>
+      </div>
     </div>
 
     <div class="nav-auth">
@@ -23,6 +35,7 @@
           <button @click="handleLogout" class="auth-btn logout">로그아웃</button>
           <div v-show="showMenu" class="dropdown-menu">
             <router-link to="/mypage" class="menu-item">마이페이지</router-link>
+            <router-link to="/petsitter/register" class="menu-item">펫시터 등록</router-link>
             <router-link to="/password" class="menu-item">비밀번호 변경</router-link>
             <router-link to="/profile" class="menu-item">회원 정보 변경</router-link>
             <router-link to="/delete-account" class="menu-item delete-account">회원 탈퇴</router-link>
@@ -41,7 +54,9 @@ export default {
   name: 'Nav',
   data() {
     return {
-      showMenu: false
+      showMenu: false,
+      showPetMenu: false,
+      showPetsittingMenu: false
     }
   },
   computed: {
@@ -60,13 +75,22 @@ export default {
       } catch (error) {
         console.error('로그아웃 실패:', error)
       }
+    },
+    togglePetMenu() {
+      this.showPetMenu = !this.showPetMenu
+      this.showPetsittingMenu = false
+    },
+    togglePetsittingMenu() {
+      this.showPetsittingMenu = !this.showPetsittingMenu
+      this.showPetMenu = false
     }
   },
   mounted() {
-    // 메뉴 외부 클릭 시 닫기
     document.addEventListener('click', (e) => {
       if (!this.$el.contains(e.target)) {
         this.showMenu = false
+        this.showPetMenu = false
+        this.showPetsittingMenu = false
       }
     })
   }
@@ -98,9 +122,10 @@ export default {
 .nav-menu {
   display: flex;
   gap: 2rem;
+  align-items: center;
 }
 
-.nav-item {
+.nav-item, .dropdown-trigger {
   text-decoration: none;
   color: #333;
   font-weight: 500;
@@ -108,7 +133,7 @@ export default {
   transition: color 0.3s ease;
 }
 
-.nav-item:hover {
+.nav-item:hover, .dropdown-trigger:hover {
   color: #007bff;
 }
 
@@ -167,14 +192,52 @@ export default {
 
 .dropdown-menu {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 0.5rem);
   right: 0;
   background: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   min-width: 200px;
-  margin-top: 0.5rem;
   z-index: 1000;
+  padding: 0.5rem 0;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.3s;
+  font-size: 1rem;
+  text-align: left;
+  white-space: nowrap;
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #007bff;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-trigger {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.dropdown-trigger:hover {
+  color: #007bff;
 }
 
 .menu-item {
@@ -216,6 +279,19 @@ export default {
 
   .nav-item {
     padding: 0.5rem;
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    left: auto;
+    right: 0;
+    transform: none;
+    width: 200px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dropdown-item {
+    text-align: left;
   }
 }
 </style>
