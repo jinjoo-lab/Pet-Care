@@ -18,14 +18,13 @@ public class Petsitter {
     private Long id;
 
     private String location;
-    private String name;
+
     @Enumerated(EnumType.STRING)
     private Certified certified;
 
 
-    public Petsitter(String location, String name) {
+    public Petsitter(String location) {
         this.location = location;
-        this.name = name;
     }
 
     public void updateCertified() {
