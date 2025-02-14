@@ -3,6 +3,7 @@ package com.example.petcare.module.member.entity;
 import com.example.petcare.global.audit.AuditListener;
 import com.example.petcare.global.audit.Auditable;
 import com.example.petcare.global.audit.BaseEntity;
+import com.example.petcare.module.petsitter.entity.Petsitter;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,6 +33,10 @@ public class Member implements Auditable {
     @Column(nullable = false)
     private BaseEntity baseEntity;
 
+    @OneToOne
+    @JoinColumn(name = "petsitter_id")
+    private Petsitter petsitter;
+
     public Member(String name, String email, String password, String phone) {
         this.name = name;
         this.email = email;
@@ -43,6 +48,10 @@ public class Member implements Auditable {
     public void updateMember(String name, String phone) {
         this.name = name;
         this.phone = phone;
+    }
+
+    public void updatePetsitter(Petsitter petsitter) {
+        this.petsitter = petsitter;
     }
 
     public void mandateAdmin() {
