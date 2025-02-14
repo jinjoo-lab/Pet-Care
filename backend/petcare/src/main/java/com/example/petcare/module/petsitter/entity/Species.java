@@ -25,8 +25,6 @@ public class Species implements Auditable {
 
     private String topSpecies;
 
-    private String subSpecies;
-
     @Embedded
     @Setter
     @Column(nullable = false)
@@ -37,9 +35,8 @@ public class Species implements Auditable {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<SitterSpecies> sitterSpecies = new ArrayList<>();
 
-    public Species(String topSpecies, String subSpecies) {
+    public Species(String topSpecies) {
         this.topSpecies = topSpecies;
-        this.subSpecies = subSpecies;
     }
 
 }

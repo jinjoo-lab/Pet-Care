@@ -53,7 +53,7 @@ public class Petsitter implements Auditable {
             mappedBy = "petsitter",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE}
     )
-    private List<SitterService> sitterService = new ArrayList<>();
+    private List<SitterCare> sitterCare = new ArrayList<>();
 
     public Petsitter(String location, Integer startTime, Integer endTime, Integer fee) {
         this.location = location;
