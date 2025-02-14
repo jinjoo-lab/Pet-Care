@@ -12,7 +12,7 @@ import PetList from '@/views/pet/PetList.vue'
 import FindSitter from '@/views/pet/FindSitter.vue'
 import PetsitterInfo from '@/views/petsitter/Info.vue'
 import store from '@/store'
-
+import PaymentTest from '@/views/PaymentTest.vue'
 const routes = [
   {
     path: '/',
@@ -78,6 +78,11 @@ const routes = [
     name: 'PetsitterInfo',
     component: PetsitterInfo,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/payment-test',
+    name: 'PaymentTest',
+    component: PaymentTest
   }
 ]
 
