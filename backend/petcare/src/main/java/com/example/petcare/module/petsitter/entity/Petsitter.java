@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @SQLRestriction("deleted_at IS NULL")
@@ -22,6 +25,10 @@ public class Petsitter {
     @Enumerated(EnumType.STRING)
     private Certified certified;
 
+    @OneToMany(
+            mappedBy = "petsitter",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<SitterSpecies> sitterSpecies = new ArrayList<>();
 
     public Petsitter(String location) {
         this.location = location;

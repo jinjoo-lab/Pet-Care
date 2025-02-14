@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @SQLRestriction("deleted_at IS NULL")
@@ -20,6 +23,11 @@ public class Species {
     private String topSpecies;
 
     private String subSpecies;
+
+    @OneToMany(
+            mappedBy = "species",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<SitterSpecies> sitterSpecies = new ArrayList<>();
 
     public Species(String topSpecies, String subSpecies) {
         this.topSpecies = topSpecies;
