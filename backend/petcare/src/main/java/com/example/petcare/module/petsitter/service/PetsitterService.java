@@ -97,4 +97,9 @@ public class PetsitterService {
     // 펫시터 상세 보기
 
     //
+
+    @Transactional(readOnly = true)
+    public Petsitter getPetSitterEntityById(Long id) {
+        return petsitterRepository.findById(id).orElseThrow(EntityExistsException::new);
+    }
 }
