@@ -32,6 +32,12 @@ public class PetsitterController {
         return ResponseEntity.ok(petsitterService.getPetsitterByMemberId(id));
     }
 
+    // 펫시터 정보 수정
+
+    // 펫시터 탈퇴
+
+
+
     @GetMapping("/test")
     public void test() {
         memberService.signUp(new SignUpRequest(

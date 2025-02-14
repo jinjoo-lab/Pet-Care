@@ -83,14 +83,14 @@
                 type="checkbox" 
                 v-model="formData.services" 
                 value="방문돌봄"
-              > 방문 돌봄
+              > 방문돌봄
             </label>
             <label class="checkbox-label">
               <input 
                 type="checkbox" 
                 v-model="formData.services" 
                 value="위탁돌봄"
-              > 위탁 돌봄
+              > 위탁돌봄
             </label>
           </div>
         </div>
@@ -129,11 +129,11 @@
 
         <!-- 요금 설정 -->
         <div class="form-group">
-          <label for="price">시간당 요금 (원)</label>
+          <label for="fee">시간당 요금 (원)</label>
           <input 
             type="number" 
-            id="price" 
-            v-model="formData.price"
+            id="fee" 
+            v-model="formData.fee"
             required
             min="0"
             step="1000"
@@ -141,8 +141,15 @@
           >
         </div>
 
-        <button type="submit" class="submit-btn" :disabled="!isFormValid">
-          펫시터 등록하기
+        <div v-if="submitStatus.error" class="error-message">
+          {{ submitStatus.error }}
+        </div>
+        <button 
+          type="submit" 
+          class="submit-btn" 
+          :disabled="!isFormValid || submitStatus.loading"
+        >
+          {{ submitStatus.loading ? '등록 중...' : '펫시터 등록하기' }}
         </button>
       </form>
     </div>
@@ -151,6 +158,7 @@
 
 <script>
 import axios from 'axios'
+import { mapState } from 'vuex'
 
 export default {
   name: 'PetsitterRegister',
@@ -160,35 +168,56 @@ export default {
         location: '',
         petTypes: [],
         services: [],
-        startTime: 9, // 기본값 9시
-        endTime: 18, // 기본값 18시
-        price: null
+        startTime: 9,
+        endTime: 18,
+        fee: null
+      },
+      submitStatus: {
+        loading: false,
+        error: null
       }
     }
   },
   computed: {
+    ...mapState(['userInfo']),
     isFormValid() {
-      return (
-        this.formData.location &&
-        this.formData.petTypes.length > 0 &&
-        this.formData.services.length > 0 &&
-        this.formData.price &&
-        this.formData.startTime !== null &&
-        this.formData.endTime !== null
-      )
+      return this.formData.location && 
+             this.formData.petTypes.length > 0 && 
+             this.formData.services.length > 0 &&
+             this.formData.fee > 0 &&
+             this.formData.startTime < this.formData.endTime
     }
   },
   methods: {
     async handleSubmit() {
       if (!this.isFormValid) return
 
+      this.submitStatus.loading = true
+      this.submitStatus.error = null
+
       try {
-        await axios.post('/api/v1/petsitter', this.formData)
-        this.$router.push('/mypage')
-        // 성공 메시지 표시
+        const requestData = {
+          memberId: this.userInfo.id,
+          location: this.formData.location,
+          pets: this.formData.petTypes,
+          services: this.formData.services,
+          startTime: parseInt(this.formData.startTime),
+          endTime: parseInt(this.formData.endTime),
+          fee: parseInt(this.formData.fee)
+        }
+
+        const response = await axios.post('/api/v1/petsitter', requestData)
+        
+        // store에 펫시터 정보 저장
+        this.$store.dispatch('registerPetSitter', response.data)
+        
+        // 등록 성공 시 스케줄 페이지로 이동
+        this.$router.push('/petsitter/info')
       } catch (error) {
         console.error('펫시터 등록 실패:', error)
-        // 에러 메시지 표시
+        this.submitStatus.error = '펫시터 등록에 실패했습니다. 다시 시도해주세요.'
+      } finally {
+        this.submitStatus.loading = false
       }
     }
   }
@@ -300,6 +329,12 @@ select {
 .submit-btn:disabled {
   background: #ccc;
   cursor: not-allowed;
+}
+
+.error-message {
+  color: #dc3545;
+  margin-top: 1rem;
+  text-align: center;
 }
 
 @media (max-width: 768px) {
