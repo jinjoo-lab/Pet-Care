@@ -3,6 +3,7 @@ package com.example.petcare.module.petsitter.entity;
 import com.example.petcare.global.audit.AuditListener;
 import com.example.petcare.global.audit.Auditable;
 import com.example.petcare.global.audit.BaseEntity;
+import com.example.petcare.module.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -34,6 +35,10 @@ public class Petsitter implements Auditable {
 
     private Integer fee;
 
+
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "petsitter")
+    private Member member;
+
     @Embedded
     @Setter
     @Column(nullable = false)
@@ -55,6 +60,11 @@ public class Petsitter implements Auditable {
         this.startTime = startTime;
         this.endTime = endTime;
         this.fee = fee;
+    }
+
+    public void updateMember(Member member) {
+        this.member = member;
+        member.updatePetsitter(this);
     }
 
     public void updateCertified() {
