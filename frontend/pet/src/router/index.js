@@ -10,6 +10,7 @@ import PetsitterRegister from '@/views/petsitter/Register.vue'
 import PetsitterSchedule from '@/views/petsitter/Schedule.vue'
 import PetList from '@/views/pet/PetList.vue'
 import FindSitter from '@/views/pet/FindSitter.vue'
+import PetsitterInfo from '@/views/petsitter/Info.vue'
 import store from '@/store'
 
 const routes = [
@@ -70,6 +71,12 @@ const routes = [
     path: '/find-sitter',
     name: 'FindSitter',
     component: FindSitter,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/petsitter/info',
+    name: 'PetsitterInfo',
+    component: PetsitterInfo,
     meta: { requiresAuth: true }
   }
 ]

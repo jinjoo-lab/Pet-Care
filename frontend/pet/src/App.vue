@@ -37,6 +37,18 @@ export default {
   },
   mounted() {
     this.checkSession()
+  },
+  async created() {
+    if (this.$store.state.isLoggedIn) {
+      await this.$store.dispatch('fetchPetSitterInfo')
+    }
+  },
+  watch: {
+    '$store.state.isLoggedIn': async function(newVal) {
+      if (newVal) {
+        await this.$store.dispatch('fetchPetSitterInfo')
+      }
+    }
   }
 }
 </script>
