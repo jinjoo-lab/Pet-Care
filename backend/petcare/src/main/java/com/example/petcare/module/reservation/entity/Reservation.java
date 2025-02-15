@@ -60,5 +60,9 @@ public class Reservation {
         this.status = status;
     }
 
-
+    public void updateReservation(Integer startTime, Integer endTime, String description) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.description = description;
+    }
 }

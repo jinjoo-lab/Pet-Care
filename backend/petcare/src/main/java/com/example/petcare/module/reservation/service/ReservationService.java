@@ -4,7 +4,10 @@ import com.example.petcare.module.member.entity.Member;
 import com.example.petcare.module.member.service.MemberService;
 import com.example.petcare.module.pet.entity.Pet;
 import com.example.petcare.module.pet.repository.PetRepository;
+import com.example.petcare.module.reservation.dto.request.RejectReservationRequest;
 import com.example.petcare.module.reservation.dto.request.SaveReservationRequest;
+import com.example.petcare.module.reservation.dto.request.UpdateReservationRequest;
+import com.example.petcare.module.reservation.dto.request.UserReservationRequest;
 import com.example.petcare.module.reservation.dto.response.ReservationResponse;
 import com.example.petcare.module.reservation.entity.PetReservation;
 import com.example.petcare.module.reservation.entity.Reservation;
@@ -66,10 +69,45 @@ public class ReservationService {
     // 예약 등록, 수정, 승인, 취소
 
     @Transactional
-    public ReservationResponse approveReservation(Long reservationId) {
-        Reservation reservation = getReservationById(reservationId);
+    public ReservationResponse approveReservation(UserReservationRequest request) {
+        Reservation reservation = getReservationById(request.getReservationId());
 
-        reservation.updateStatus(ReservationStatus.APPROVE);
+        if(reservation.getMember().getMemberId().equals(request.getUserId())) {
+            reservation.updateStatus(ReservationStatus.APPROVE);
+        }
+
+        return reservationMapper.reservationToReservationResponse(reservation);
+    }
+
+    @Transactional
+    public ReservationResponse cancelReservation(UserReservationRequest request) {
+        Reservation reservation = getReservationById(request.getReservationId());
+
+        if(reservation.getMember().getMemberId().equals(request.getUserId())) {
+            reservation.updateStatus(ReservationStatus.CANCEL);
+        }
+
+        return reservationMapper.reservationToReservationResponse(reservation);
+    }
+
+    @Transactional
+    public ReservationResponse rejectReservation(RejectReservationRequest request) {
+        Reservation reservation = getReservationById(request.getReservationId());
+
+        Schedule schedule = scheduleService.getScheduleById(request.getScheduleId());
+
+        if (schedule.getPetSitter().getId().equals(request.getPetSitterId()) && reservation.getStatus().equals(ReservationStatus.REQUEST)) {
+            reservation.updateStatus(ReservationStatus.REJECT);
+        }
+
+        return reservationMapper.reservationToReservationResponse(reservation);
+    }
+
+    @Transactional
+    public ReservationResponse updateReservation(UpdateReservationRequest request) {
+        Reservation reservation = getReservationById(request.getReservationId());
+
+        reservation.updateReservation(request.getStartTime(),request.getEndTime(),request.getDescription());
 
         return reservationMapper.reservationToReservationResponse(reservation);
     }
