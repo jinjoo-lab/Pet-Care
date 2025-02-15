@@ -107,4 +107,15 @@ public class MemberService {
         }
         return sb.toString();
     }
+
+
+    @Transactional(readOnly = true)
+    public Member getMemberEntityById(Long id) {
+        return memberRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Member getMemberEntityByEmail(String email) {
+        return memberRepository.findByEmail(email).orElseThrow(EntityNotFoundException::new);
+    }
 }

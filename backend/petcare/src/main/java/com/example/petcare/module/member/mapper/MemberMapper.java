@@ -4,15 +4,14 @@ import com.example.petcare.module.member.dto.request.SignUpRequest;
 import com.example.petcare.module.member.dto.response.MemberResponse;
 import com.example.petcare.module.member.dto.response.ResetPasswordResponse;
 import com.example.petcare.module.member.entity.Member;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.stereotype.Component;
 
 @Component
 @Getter
 @NoArgsConstructor
 public class MemberMapper {
+
 
     public Member signUpRequestToMember(SignUpRequest signUpRequest) {
         return new Member(

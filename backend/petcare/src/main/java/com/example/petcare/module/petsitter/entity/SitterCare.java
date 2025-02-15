@@ -10,33 +10,33 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
 @SQLRestriction("deleted_at IS NULL")
 @EntityListeners(AuditListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Species implements Auditable {
+public class SitterCare implements Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String topSpecies;
 
     @Embedded
     @Setter
     @Column(nullable = false)
     private BaseEntity baseEntity;
 
-    @OneToMany(
-            mappedBy = "species",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<SitterSpecies> sitterSpecies = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_id")
+    private Care service;
 
-    public Species(String topSpecies) {
-        this.topSpecies = topSpecies;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "petsitter_id")
+    private Petsitter petsitter;
+
+    public SitterCare(Care service, Petsitter petsitter) {
+        this.service = service;
+        this.petsitter = petsitter;
+        service.getSitterCare().add(this);
+        petsitter.getSitterCare().add(this);
     }
-
 }

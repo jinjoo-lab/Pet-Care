@@ -18,8 +18,17 @@
       <div class="dropdown">
         <span class="dropdown-trigger" @click="togglePetsittingMenu">펫시팅</span>
         <div v-show="showPetsittingMenu" class="dropdown-menu">
-          <router-link to="/petsitter/register" class="dropdown-item">펫시터 등록</router-link>
-          <router-link to="/petsitter/schedule" class="dropdown-item">내 일정</router-link>
+          <template v-if="!isPetSitter">
+            <router-link to="/petsitter/register" class="dropdown-item">펫시터 등록</router-link>
+          </template>
+          <template v-else>
+            <router-link 
+              to="/petsitter/info" 
+              class="dropdown-item"
+              @click="fetchPetSitterInfo"
+            >펫시터 정보</router-link>
+            <router-link to="/petsitter/schedule" class="dropdown-item">내 일정</router-link>
+          </template>
         </div>
       </div>
     </div>
@@ -47,7 +56,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions, mapGetters } from 'vuex'
 import axios from 'axios'
 
 export default {
@@ -56,11 +65,13 @@ export default {
     return {
       showMenu: false,
       showPetMenu: false,
-      showPetsittingMenu: false
+      showPetsittingMenu: false,
+      showUserMenu: false
     }
   },
   computed: {
-    ...mapState(['isLoggedIn', 'userInfo'])
+    ...mapState(['isLoggedIn', 'userInfo']),
+    ...mapGetters(['isPetSitter'])
   },
   methods: {
     ...mapActions(['logout']),
@@ -83,6 +94,11 @@ export default {
     togglePetsittingMenu() {
       this.showPetsittingMenu = !this.showPetsittingMenu
       this.showPetMenu = false
+    },
+    async fetchPetSitterInfo() {
+      if (this.userInfo) {
+        await this.$store.dispatch('fetchPetSitterInfo')
+      }
     }
   },
   mounted() {

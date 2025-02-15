@@ -18,25 +18,26 @@ import java.util.List;
 @SQLRestriction("deleted_at IS NULL")
 @EntityListeners(AuditListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Species implements Auditable {
+public class Care implements Auditable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String topSpecies;
+    private String name;
+
+    @OneToMany(
+            mappedBy = "service",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE}
+    )
+    private List<SitterCare> sitterCare = new ArrayList<>();
 
     @Embedded
     @Setter
     @Column(nullable = false)
     private BaseEntity baseEntity;
 
-    @OneToMany(
-            mappedBy = "species",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<SitterSpecies> sitterSpecies = new ArrayList<>();
-
-    public Species(String topSpecies) {
-        this.topSpecies = topSpecies;
+    public Care(String name) {
+        this.name = name;
     }
-
 }
