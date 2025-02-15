@@ -3,6 +3,7 @@ package com.example.petcare.module.member.entity;
 import com.example.petcare.global.audit.AuditListener;
 import com.example.petcare.global.audit.Auditable;
 import com.example.petcare.global.audit.BaseEntity;
+import com.example.petcare.module.pet.entity.Pet;
 import com.example.petcare.module.petsitter.entity.Petsitter;
 import com.example.petcare.module.reservation.entity.Reservation;
 import jakarta.persistence.*;
@@ -43,6 +44,9 @@ public class Member implements Auditable {
 
     @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Reservation> reservations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Pet> pets = new ArrayList<>();
 
     public Member(String name, String email, String password, String phone) {
         this.name = name;
