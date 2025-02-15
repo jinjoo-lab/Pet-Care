@@ -53,6 +53,13 @@ public class ScheduleService {
         return scheduleMapper.scheduleToScheduleResponse(schedule);
     }
 
+    @Transactional(readOnly = true)
+    public ScheduleResponse findScheduleById(Long id) {
+        Schedule schedule = scheduleRepository.findById(id).orElseThrow(EntityExistsException::new);
+
+        return scheduleMapper.scheduleToScheduleResponse(schedule);
+    }
+
     public LocalDate convertDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return LocalDate.parse(date, formatter);
