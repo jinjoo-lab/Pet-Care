@@ -9,6 +9,8 @@ import com.example.petcare.module.reservation.service.ReservationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/v1/reservations")
 public class ReservationController {
@@ -48,4 +50,8 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.updateReservation(request));
     }
 
+    @GetMapping("/list/{member-id}")
+    public ResponseEntity<List<ReservationResponse>> getReservationsByMember(@PathVariable("member-id") Long memberId) {
+        return ResponseEntity.ok(reservationService.getReservationsByMember(memberId));
+    }
 }

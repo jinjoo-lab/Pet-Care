@@ -33,7 +33,7 @@ public class ScheduleController {
     }
 
     @GetMapping("/list/{id}/{date}")
-    public ResponseEntity<List<ScheduleResponse>> findScheduleBySitterId(@PathVariable("id") Long id, @PathVariable("date") String date) {
-        return ResponseEntity.ok(scheduleService.findSchedules(id,date));
+    public ResponseEntity<List<ScheduleResponse>> findScheduleBySitterId(@PathVariable("id") Long petSitterId, @PathVariable("date") String date) {
+        return ResponseEntity.ok(scheduleService.findSchedules(petSitterId,date));
     }
 }

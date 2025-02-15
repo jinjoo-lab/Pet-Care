@@ -121,4 +121,13 @@ public class ReservationService {
     private Reservation getReservationById(Long reservationId) {
         return reservationRepository.findById(reservationId).orElseThrow(EntityNotFoundException::new);
     }
+
+    @Transactional(readOnly = true)
+    public List<ReservationResponse> getReservationsByMember(Long memberId) {
+
+        Member member = memberService.getMemberEntityById(memberId);
+
+        return reservationRepository.findAllByMember(member).stream().map(r -> reservationMapper.reservationToReservationResponse(r))
+                .toList();
+    }
 }
