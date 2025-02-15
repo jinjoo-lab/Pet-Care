@@ -8,6 +8,7 @@ import com.example.petcare.module.reservation.dto.request.SaveReservationRequest
 import com.example.petcare.module.reservation.dto.response.ReservationResponse;
 import com.example.petcare.module.reservation.entity.PetReservation;
 import com.example.petcare.module.reservation.entity.Reservation;
+import com.example.petcare.module.reservation.entity.ReservationStatus;
 import com.example.petcare.module.reservation.mapper.ReservationMapper;
 import com.example.petcare.module.reservation.repository.ReservationRepository;
 import com.example.petcare.module.schedule.entity.Schedule;
@@ -62,10 +63,24 @@ public class ReservationService {
         return reservationMapper.reservationToReservationResponse(reservation);
     }
 
+    // 예약 등록, 수정, 승인, 취소
+
     @Transactional
-    public ReservationResponse getReservationById(Long id) {
-        return reservationMapper.reservationToReservationResponse(reservationRepository.findById(id).orElseThrow(EntityNotFoundException::new));
+    public ReservationResponse approveReservation(Long reservationId) {
+        Reservation reservation = getReservationById(reservationId);
+
+        reservation.updateStatus(ReservationStatus.APPROVE);
+
+        return reservationMapper.reservationToReservationResponse(reservation);
     }
 
 
+    @Transactional(readOnly = true)
+    public ReservationResponse findReservationById(Long id) {
+        return reservationMapper.reservationToReservationResponse(reservationRepository.findById(id).orElseThrow(EntityNotFoundException::new));
+    }
+
+    private Reservation getReservationById(Long reservationId) {
+        return reservationRepository.findById(reservationId).orElseThrow(EntityNotFoundException::new);
+    }
 }
