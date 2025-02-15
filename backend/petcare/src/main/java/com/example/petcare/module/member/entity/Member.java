@@ -4,12 +4,16 @@ import com.example.petcare.global.audit.AuditListener;
 import com.example.petcare.global.audit.Auditable;
 import com.example.petcare.global.audit.BaseEntity;
 import com.example.petcare.module.petsitter.entity.Petsitter;
+import com.example.petcare.module.reservation.entity.Reservation;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -36,6 +40,9 @@ public class Member implements Auditable {
     @OneToOne
     @JoinColumn(name = "petsitter_id")
     private Petsitter petsitter;
+
+    @OneToMany(mappedBy = "member", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Reservation> reservations = new ArrayList<>();
 
     public Member(String name, String email, String password, String phone) {
         this.name = name;
