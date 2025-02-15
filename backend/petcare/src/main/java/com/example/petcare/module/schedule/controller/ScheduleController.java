@@ -1,8 +1,8 @@
-package com.example.petcare.schedule.controller;
+package com.example.petcare.module.schedule.controller;
 
-import com.example.petcare.schedule.dto.request.SaveScheduleRequest;
-import com.example.petcare.schedule.dto.response.ScheduleResponse;
-import com.example.petcare.schedule.service.ScheduleService;
+import com.example.petcare.module.schedule.dto.request.SaveScheduleRequest;
+import com.example.petcare.module.schedule.dto.response.ScheduleResponse;
+import com.example.petcare.module.schedule.service.ScheduleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

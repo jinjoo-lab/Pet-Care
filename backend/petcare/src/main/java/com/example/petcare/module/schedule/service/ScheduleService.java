@@ -1,12 +1,12 @@
-package com.example.petcare.schedule.service;
+package com.example.petcare.module.schedule.service;
 
 import com.example.petcare.module.petsitter.entity.Petsitter;
 import com.example.petcare.module.petsitter.service.PetsitterService;
-import com.example.petcare.schedule.dto.request.SaveScheduleRequest;
-import com.example.petcare.schedule.dto.response.ScheduleResponse;
-import com.example.petcare.schedule.entity.Schedule;
-import com.example.petcare.schedule.mapper.ScheduleMapper;
-import com.example.petcare.schedule.repository.ScheduleRepository;
+import com.example.petcare.module.schedule.dto.response.ScheduleResponse;
+import com.example.petcare.module.schedule.dto.request.SaveScheduleRequest;
+import com.example.petcare.module.schedule.entity.Schedule;
+import com.example.petcare.module.schedule.mapper.ScheduleMapper;
+import com.example.petcare.module.schedule.repository.ScheduleRepository;
 import jakarta.persistence.EntityExistsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

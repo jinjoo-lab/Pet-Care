@@ -1,10 +1,10 @@
-package com.example.petcare.schedule.mapper;
+package com.example.petcare.module.schedule.mapper;
 
 import com.example.petcare.module.petsitter.entity.Petsitter;
 import com.example.petcare.module.petsitter.mapper.PetsitterMapper;
-import com.example.petcare.schedule.dto.request.SaveScheduleRequest;
-import com.example.petcare.schedule.dto.response.ScheduleResponse;
-import com.example.petcare.schedule.entity.Schedule;
+import com.example.petcare.module.schedule.dto.response.ScheduleResponse;
+import com.example.petcare.module.schedule.dto.request.SaveScheduleRequest;
+import com.example.petcare.module.schedule.entity.Schedule;
 import org.springframework.stereotype.Component;
 
 @Component

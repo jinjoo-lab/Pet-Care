@@ -1,7 +1,8 @@
-package com.example.petcare.schedule.entity;
+package com.example.petcare.module.schedule.entity;
 
 import com.example.petcare.global.audit.AuditListener;
 import com.example.petcare.module.petsitter.entity.Petsitter;
+import com.example.petcare.module.reservation.entity.Reservation;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -9,6 +10,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,6 +25,12 @@ public class Schedule {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Petsitter petSitter;
+
+    @OneToMany(
+            mappedBy = "schedule",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE}
+    )
+    List<Reservation> reservations = new ArrayList<>();
 
     private LocalDate date;
 

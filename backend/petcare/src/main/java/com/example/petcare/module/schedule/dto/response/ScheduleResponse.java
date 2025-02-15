@@ -1,5 +1,6 @@
-package com.example.petcare.schedule.dto.request;
+package com.example.petcare.module.schedule.dto.response;
 
+import com.example.petcare.module.petsitter.dto.response.SitterResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,8 +10,9 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SaveScheduleRequest {
-    private Long petSitterId;
+public class ScheduleResponse {
+    private Long id;
+    private SitterResponse sitter;
     private LocalDate date;
     private Integer startTime;
     private Integer endTime;
