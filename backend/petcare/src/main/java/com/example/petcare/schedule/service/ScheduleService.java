@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 
 @Service
@@ -57,6 +58,18 @@ public class ScheduleService {
     public ScheduleResponse findScheduleById(Long id) {
         Schedule schedule = scheduleRepository.findById(id).orElseThrow(EntityExistsException::new);
         return scheduleMapper.scheduleToScheduleResponse(schedule);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScheduleResponse> findSchedules(Long petSitterId, String date) {
+        Petsitter petSitter = petsitterService.getPetSitterEntityById(petSitterId);
+        LocalDate convertDate = convertDate(date);
+
+        List<Schedule> schedules = scheduleRepository.findAllByPetSitterAndDate(
+                petSitter, convertDate
+        );
+
+        return schedules.stream().map(scheduleMapper::scheduleToScheduleResponse).toList();
     }
 
     public LocalDate convertDate(String date) {

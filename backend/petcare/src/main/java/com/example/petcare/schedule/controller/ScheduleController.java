@@ -6,6 +6,8 @@ import com.example.petcare.schedule.service.ScheduleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/schedule")
 public class ScheduleController {
@@ -30,5 +32,8 @@ public class ScheduleController {
         return ResponseEntity.ok(scheduleService.findScheduleById(id));
     }
 
-
+    @GetMapping("/list/{id}/{date}")
+    public ResponseEntity<List<ScheduleResponse>> findScheduleBySitterId(@PathVariable("id") Long id, @PathVariable("date") String date) {
+        return ResponseEntity.ok(scheduleService.findSchedules(id,date));
+    }
 }
