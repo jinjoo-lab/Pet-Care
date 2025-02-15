@@ -72,7 +72,11 @@ public class ScheduleService {
         return schedules.stream().map(scheduleMapper::scheduleToScheduleResponse).toList();
     }
 
-    public LocalDate convertDate(String date) {
+    public Schedule getScheduleById(Long id) {
+        return scheduleRepository.findById(id).orElseThrow(EntityExistsException::new);
+    }
+
+    private LocalDate convertDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return LocalDate.parse(date, formatter);
     }

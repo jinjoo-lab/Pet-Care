@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,16 +36,23 @@ public class Reservation {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
+    @OneToMany(mappedBy = "reservation", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<PetReservation> petReservations = new ArrayList<>();
+
+    private String description;
+
     public Reservation(
             Schedule schedule,
             Member member,
             LocalDate date, Integer startTime,
-            Integer endTime, ReservationStatus status) {
+            Integer endTime, ReservationStatus status,
+            String description) {
         this.schedule = schedule;
         this.member = member;
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
         this.status = status;
+        this.description = description;
     }
 }
