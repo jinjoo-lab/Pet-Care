@@ -21,7 +21,12 @@ public class ScheduleController {
     }
 
     @GetMapping("/{id}/{date}")
-    public ResponseEntity<ScheduleResponse> getSchedule(@PathVariable Long id, @PathVariable String date) {
+    public ResponseEntity<ScheduleResponse> getSchedule(@PathVariable("id") Long id, @PathVariable("date") String date) {
         return ResponseEntity.ok(scheduleService.findScheduleBySitterIdAndDate(id,date));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ScheduleResponse> getScheduleById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(scheduleService.findScheduleById(id));
     }
 }
