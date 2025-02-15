@@ -56,7 +56,6 @@ public class ScheduleService {
     @Transactional(readOnly = true)
     public ScheduleResponse findScheduleById(Long id) {
         Schedule schedule = scheduleRepository.findById(id).orElseThrow(EntityExistsException::new);
-
         return scheduleMapper.scheduleToScheduleResponse(schedule);
     }
 

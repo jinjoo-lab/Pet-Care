@@ -29,4 +29,6 @@ public class ScheduleController {
     public ResponseEntity<ScheduleResponse> getScheduleById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(scheduleService.findScheduleById(id));
     }
+
+
 }
