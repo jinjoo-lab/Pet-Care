@@ -8,6 +8,7 @@ import com.example.petcare.module.reservation.dto.response.SimpleReservationResp
 import com.example.petcare.module.reservation.entity.Reservation;
 import com.example.petcare.module.schedule.dto.response.ScheduleResponse;
 import com.example.petcare.module.schedule.dto.request.SaveScheduleRequest;
+import com.example.petcare.module.schedule.dto.response.SimpleScheduleResponse;
 import com.example.petcare.module.schedule.entity.Schedule;
 import org.springframework.stereotype.Component;
 
@@ -50,6 +51,17 @@ public class ScheduleMapper {
                 schedule.getTimeFee(),
                 schedule.getReservations().stream().map(this::reservationToSimpleReservationResponse)
                         .toList()
+        );
+    }
+
+    public SimpleScheduleResponse scheduleToSimpleReservationResponse(Schedule schedule) {
+        return new SimpleScheduleResponse(
+                schedule.getId(),
+                petsitterMapper.petSitterToResponse(schedule.getPetSitter()),
+                schedule.getDate(),
+                schedule.getStartTime(),
+                schedule.getEndTime(),
+                schedule.getTimeFee()
         );
     }
 

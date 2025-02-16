@@ -3,6 +3,7 @@ package com.example.petcare.module.schedule.controller;
 import com.example.petcare.module.schedule.dto.request.FindScheduleRequest;
 import com.example.petcare.module.schedule.dto.request.SaveScheduleRequest;
 import com.example.petcare.module.schedule.dto.response.ScheduleResponse;
+import com.example.petcare.module.schedule.dto.response.SimpleScheduleResponse;
 import com.example.petcare.module.schedule.service.ScheduleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,8 @@ public class ScheduleController {
     }
 
     @PostMapping("/list")
-    public ResponseEntity<List<ScheduleResponse>> findSchedules(@RequestBody FindScheduleRequest request) {
+    public ResponseEntity<List<SimpleScheduleResponse>> findSchedules(@RequestBody FindScheduleRequest request) {
+        System.out.println("SKRR");
         return ResponseEntity.ok(scheduleService.findAllSchedules(request));
     }
 }

@@ -231,18 +231,30 @@ export default {
     moveNextWeek() {
       this.weekStart = addDays(this.weekStart, 7)
     },
-    async handleAccept(scheduleId) {
+    async approveReservation(reservationId, scheduleId) {
       try {
-        await axios.post(`/api/v1/petsitter/schedules/${scheduleId}/accept`)
-        await this.fetchSchedules()
+        const requestData = {
+          reservationId,
+          scheduleId,
+          petSitterId: this.$store.state.userInfo.id
+        }
+        await axios.patch('/api/v1/reservations/approve', requestData)
+        console.log('예약 수락 성공')
+        this.fetchSchedules()
       } catch (error) {
         console.error('예약 수락 실패:', error)
       }
     },
-    async handleReject(scheduleId) {
+    async rejectReservation(reservationId, scheduleId) {
       try {
-        await axios.post(`/api/v1/petsitter/schedules/${scheduleId}/reject`)
-        await this.fetchSchedules()
+        const requestData = {
+          reservationId,
+          scheduleId,
+          petSitterId: this.$store.state.userInfo.id
+        }
+        await axios.patch('/api/v1/reservations/reject', requestData)
+        console.log('예약 거절 성공')
+        this.fetchSchedules()
       } catch (error) {
         console.error('예약 거절 실패:', error)
       }
@@ -298,34 +310,6 @@ export default {
         await this.fetchSchedules()
       } catch (error) {
         console.error('일정 삭제 실패:', error)
-      }
-    },
-    async approveReservation(reservationId, scheduleId) {
-      try {
-        const requestData = {
-          reservationId,
-          scheduleId,
-          petSitterId: this.$store.state.userInfo.id
-        }
-        await axios.patch('/api/v1/reservations/approve', requestData)
-        console.log('예약 수락 성공')
-        this.fetchSchedules()
-      } catch (error) {
-        console.error('예약 수락 실패:', error)
-      }
-    },
-    async rejectReservation(reservationId, scheduleId) {
-      try {
-        const requestData = {
-          reservationId,
-          scheduleId,
-          petSitterId: this.$store.state.userInfo.id
-        }
-        await axios.patch('/api/v1/reservations/reject', requestData)
-        console.log('예약 거절 성공')
-        this.fetchSchedules()
-      } catch (error) {
-        console.error('예약 거절 실패:', error)
       }
     }
   },

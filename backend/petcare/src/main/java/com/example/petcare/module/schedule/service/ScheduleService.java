@@ -5,6 +5,7 @@ import com.example.petcare.module.petsitter.service.PetsitterService;
 import com.example.petcare.module.schedule.dto.request.FindScheduleRequest;
 import com.example.petcare.module.schedule.dto.response.ScheduleResponse;
 import com.example.petcare.module.schedule.dto.request.SaveScheduleRequest;
+import com.example.petcare.module.schedule.dto.response.SimpleScheduleResponse;
 import com.example.petcare.module.schedule.entity.Schedule;
 import com.example.petcare.module.schedule.mapper.ScheduleMapper;
 import com.example.petcare.module.schedule.repository.ScheduleRepository;
@@ -85,14 +86,14 @@ public class ScheduleService {
     }
 
     @Transactional(readOnly = true)
-    public List<ScheduleResponse> findAllSchedules(FindScheduleRequest request) {
+    public List<SimpleScheduleResponse> findAllSchedules(FindScheduleRequest request) {
         return scheduleRepository.findScheduleByRequest(
                 request.getLocation(),
                 convertDate(request.getDate()),
                 request.getStartTime(),
                 request.getEndTime()
         ).stream().map(
-                s -> scheduleMapper.scheduleToScheduleResponse(s)
+                s -> scheduleMapper.scheduleToSimpleReservationResponse(s)
         ).toList();
     }
 }
