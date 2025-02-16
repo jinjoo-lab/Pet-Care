@@ -2,6 +2,7 @@ package com.example.petcare.module.schedule.service;
 
 import com.example.petcare.module.petsitter.entity.Petsitter;
 import com.example.petcare.module.petsitter.service.PetsitterService;
+import com.example.petcare.module.schedule.dto.request.FindScheduleRequest;
 import com.example.petcare.module.schedule.dto.response.ScheduleResponse;
 import com.example.petcare.module.schedule.dto.request.SaveScheduleRequest;
 import com.example.petcare.module.schedule.entity.Schedule;
@@ -81,5 +82,17 @@ public class ScheduleService {
     private LocalDate convertDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return LocalDate.parse(date, formatter);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ScheduleResponse> findAllSchedules(FindScheduleRequest request) {
+        return scheduleRepository.findScheduleByRequest(
+                request.getLocation(),
+                convertDate(request.getDate()),
+                request.getStartTime(),
+                request.getEndTime()
+        ).stream().map(
+                s -> scheduleMapper.scheduleToScheduleResponse(s)
+        ).toList();
     }
 }
