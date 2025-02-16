@@ -4,10 +4,7 @@ import com.example.petcare.module.member.entity.Member;
 import com.example.petcare.module.member.service.MemberService;
 import com.example.petcare.module.pet.entity.Pet;
 import com.example.petcare.module.pet.repository.PetRepository;
-import com.example.petcare.module.reservation.dto.request.RejectReservationRequest;
-import com.example.petcare.module.reservation.dto.request.SaveReservationRequest;
-import com.example.petcare.module.reservation.dto.request.UpdateReservationRequest;
-import com.example.petcare.module.reservation.dto.request.UserReservationRequest;
+import com.example.petcare.module.reservation.dto.request.*;
 import com.example.petcare.module.reservation.dto.response.ReservationResponse;
 import com.example.petcare.module.reservation.entity.PetReservation;
 import com.example.petcare.module.reservation.entity.Reservation;
@@ -69,10 +66,12 @@ public class ReservationService {
     // 예약 등록, 수정, 승인, 취소
 
     @Transactional
-    public ReservationResponse approveReservation(UserReservationRequest request) {
+    public ReservationResponse approveReservation(ApproveReservationRequest request) {
         Reservation reservation = getReservationById(request.getReservationId());
 
-        if(reservation.getMember().getMemberId().equals(request.getUserId())) {
+        Schedule schedule = scheduleService.getScheduleById(request.getScheduleId());
+
+        if (schedule.getPetSitter().getId().equals(request.getPetSitterId()) && reservation.getStatus().equals(ReservationStatus.REQUEST)) {
             reservation.updateStatus(ReservationStatus.APPROVE);
         }
 

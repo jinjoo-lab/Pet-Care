@@ -2,7 +2,7 @@
   <div class="pet-list-container">
     <div class="header-section">
       <h2>내 반려동물</h2>
-      <button class="add-pet-btn">반려동물 등록</button>
+      <button @click="showAddPetForm = true" class="add-pet-btn">반려동물 등록</button>
     </div>
 
     <div class="pets-section">
@@ -12,52 +12,106 @@
       <div v-else class="pet-list">
         <div v-for="pet in pets" :key="pet.id" class="pet-card">
           <div class="pet-image">
-            <img :src="pet.imageUrl" :alt="pet.name">
+            <img :src="pet.photo" :alt="pet.name">
           </div>
           <div class="pet-info">
             <h3>{{ pet.name }}</h3>
-            <p class="pet-type">{{ pet.type }} / {{ pet.breed }}</p>
-            <p class="pet-details">{{ pet.age }}세 / {{ pet.gender }}</p>
-            <p class="pet-description">{{ pet.description }}</p>
-          </div>
-          <div class="pet-actions">
-            <button class="edit-btn">수정</button>
-            <button class="delete-btn">삭제</button>
+            <p>종류: {{ pet.petType }}</p>
+            <p>나이: {{ pet.age }}살</p>
+            <p>크기: {{ pet.petSize }}</p>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div v-if="showAddPetForm" class="modal-overlay">
+      <div class="modal-content">
+        <h3>반려동물 등록</h3>
+        <form @submit.prevent="handleAddPet" class="pet-form">
+          <div class="form-group">
+            <label for="petName">이름</label>
+            <input type="text" id="petName" v-model="newPet.name" required>
+          </div>
+          <div class="form-group">
+            <label for="petType">종류</label>
+            <select id="petType" v-model="newPet.petType" required>
+              <option value="DOG">강아지</option>
+              <option value="CAT">고양이</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="petAge">나이</label>
+            <input type="number" id="petAge" v-model="newPet.age" required>
+          </div>
+          <div class="form-group">
+            <label for="petPhoto">사진 URL</label>
+            <input type="text" id="petPhoto" v-model="newPet.photo" required>
+          </div>
+          <div class="form-group">
+            <label for="petSize">크기</label>
+            <select id="petSize" v-model="newPet.size" required>
+              <option value="SMALL">작음</option>
+              <option value="MEDIUM">중간</option>
+              <option value="LARGE">큼</option>
+            </select>
+          </div>
+          <div class="modal-actions">
+            <button type="submit" class="submit-btn">등록</button>
+            <button type="button" class="cancel-btn" @click="showAddPetForm = false">취소</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'PetList',
   data() {
     return {
-      pets: [
-        {
-          id: 1,
-          name: '멍멍이',
-          type: '강아지',
-          breed: '골든리트리버',
-          age: 3,
-          gender: '남아',
-          description: '산책을 매우 좋아하는 활발한 강아지입니다.',
-          imageUrl: '/images/default-pet.png'
-        },
-        {
-          id: 2,
-          name: '나비',
-          type: '고양이',
-          breed: '러시안블루',
-          age: 2,
-          gender: '여아',
-          description: '조용하고 애교가 많은 고양이입니다.',
-          imageUrl: '/images/default-pet.png'
-        }
-      ]
+      pets: [],
+      showAddPetForm: false,
+      newPet: {
+        name: '',
+        petType: 'DOG',
+        age: 0,
+        photo: '',
+        size: 'SMALL'
+      }
     }
+  },
+  methods: {
+    async handleAddPet() {
+      try {
+        const requestData = {
+          ...this.newPet,
+          memberId: this.$store.state.userInfo.id
+        }
+
+        await axios.post('/api/v1/pets', requestData)
+        console.log('반려동물 등록 성공')
+        this.showAddPetForm = false
+        this.fetchPets()
+      } catch (error) {
+        console.error('반려동물 등록 실패:', error)
+      }
+    },
+    async fetchPets() {
+      try {
+        const memberId = this.$store.state.userInfo.id
+        const response = await axios.get(`/api/v1/pets/${memberId}`)
+        this.pets = response.data
+        console.log('반려동물 목록 불러오기 성공:', this.pets)
+      } catch (error) {
+        console.error('반려동물 목록 불러오기 실패:', error)
+      }
+    }
+  },
+  mounted() {
+    this.fetchPets()
   }
 }
 </script>
@@ -191,6 +245,61 @@ export default {
 
 .delete-btn:hover {
   background: #c82333;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+}
+
+.pet-form {
+  margin-top: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.submit-btn, .cancel-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submit-btn:hover, .cancel-btn:hover {
+  background-color: #0056b3;
 }
 
 @media (max-width: 768px) {

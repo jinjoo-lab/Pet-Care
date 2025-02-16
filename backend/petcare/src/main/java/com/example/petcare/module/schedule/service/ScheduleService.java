@@ -33,7 +33,9 @@ public class ScheduleService {
     public ScheduleResponse saveSchedule(SaveScheduleRequest request) {
         Petsitter petSitter = petsitterService.getPetSitterEntityById(request.getPetSitterId());
 
-        Schedule schedule = scheduleRepository.save(
+        Schedule schedule = scheduleMapper.saveScheduleRequestToEntity(petSitter, request);
+
+        scheduleRepository.save(
                 scheduleMapper.saveScheduleRequestToEntity(
                         petSitter, request
                 )

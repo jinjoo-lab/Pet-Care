@@ -1,7 +1,6 @@
 package com.example.petcare.module.schedule.dto.response;
 
 import com.example.petcare.module.petsitter.dto.response.SitterResponse;
-import com.example.petcare.module.reservation.dto.response.ReservationResponse;
 import com.example.petcare.module.reservation.dto.response.SimpleReservationResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

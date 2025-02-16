@@ -19,4 +19,6 @@ public class ReservationResponse {
     private ScheduleResponse schedule;
     private MemberResponse member;
     private List<PetResponse> pets;
+    private Integer startTime;
+    private Integer endTime;
 }

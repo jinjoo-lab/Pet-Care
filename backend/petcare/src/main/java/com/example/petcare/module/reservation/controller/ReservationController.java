@@ -1,9 +1,6 @@
 package com.example.petcare.module.reservation.controller;
 
-import com.example.petcare.module.reservation.dto.request.RejectReservationRequest;
-import com.example.petcare.module.reservation.dto.request.SaveReservationRequest;
-import com.example.petcare.module.reservation.dto.request.UpdateReservationRequest;
-import com.example.petcare.module.reservation.dto.request.UserReservationRequest;
+import com.example.petcare.module.reservation.dto.request.*;
 import com.example.petcare.module.reservation.dto.response.ReservationResponse;
 import com.example.petcare.module.reservation.service.ReservationService;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +28,7 @@ public class ReservationController {
     }
 
     @PatchMapping("/approve")
-    public ResponseEntity<ReservationResponse> approveReservation(@RequestBody UserReservationRequest request) {
+    public ResponseEntity<ReservationResponse> approveReservation(@RequestBody ApproveReservationRequest request) {
         return ResponseEntity.ok(reservationService.approveReservation(request));
     }
 

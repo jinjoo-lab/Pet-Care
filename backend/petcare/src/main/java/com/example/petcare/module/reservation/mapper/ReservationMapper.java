@@ -53,7 +53,9 @@ public class ReservationMapper {
                 memberMapper.memberToMemberResponse(reservation.getMember()),
                 reservation.getPetReservations().stream().map(
                         pet -> petMapper.petToPetResponse(pet.getPet())
-                ).toList()
+                ).toList(),
+                reservation.getStartTime(),
+                reservation.getEndTime()
         );
     }
 
