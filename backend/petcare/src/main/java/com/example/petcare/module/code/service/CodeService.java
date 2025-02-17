@@ -98,6 +98,9 @@ public class CodeService {
     public void deleteCodeGroup(String groupId) {
         CodeGroup codeGroup = getCodeGroupEntity(groupId);
         codeGroup.getBaseEntity().setDeletedAt(LocalDateTime.now());
+
+        codeGroup.getCodeDetails()
+                .forEach(d -> d.getBaseEntity().setDeletedAt(LocalDateTime.now()));
     }
 
     @Transactional

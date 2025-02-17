@@ -27,58 +27,79 @@
       </table>
     </div>
 
-    <div class="code-detail" v-if="selectedGroup">
-      <h2>코드상세: {{ selectedGroup.name }}</h2>
-      <div class="code-detail-header">
-        <button @click="openAddCodeModal" class="add-button">+추가</button>
+    <div class="code-detail">
+      <h2>코드상세{{ selectedGroup ? ': ' + selectedGroup.name : '' }}</h2>
+      <div v-if="selectedGroup">
+        <div class="code-detail-header">
+          <button @click="openAddCodeModal" class="add-button">+추가</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>코드명</th>
+              <th>코드ID</th>
+              <th>코드상태</th>
+              <th>변경</th>
+              <th>삭제</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="code in codeDetails" :key="code.id">
+              <td>{{ code.name }}</td>
+              <td>{{ code.id }}</td>
+              <td>{{ code.isActive ? '활성' : '비활성' }}</td>
+              <td>
+                <button @click.stop="openEditCodeModal(code)" class="edit-button">변경</button>
+              </td>
+              <td>
+                <button @click.stop="deleteCode(code.id)" class="delete-button">삭제</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>코드명</th>
-            <th>코드ID</th>
-            <th>코드상태</th>
-            <th>변경</th>
-            <th>삭제</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="code in codeDetails" :key="code.id">
-            <td>{{ code.name }}</td>
-            <td>{{ code.id }}</td>
-            <td>{{ code.isActive ? '활성' : '비활성' }}</td>
-            <td>
-              <button @click.stop="openEditCodeModal(code)" class="edit-button">변경</button>
-            </td>
-            <td>
-              <button @click.stop="deleteCode(code.id)" class="delete-button">삭제</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div v-else class="no-group-selected">
+        코드 그룹을 선택해주세요.
+      </div>
     </div>
 
     <!-- 코드 그룹 추가 모달 -->
     <div v-if="isAddGroupModalOpen" class="modal">
       <h2>코드 그룹 추가</h2>
-      <div class="form-group">
-        <label for="groupName">그룹명</label>
-        <input type="text" id="groupName" v-model="newGroupName" />
+      <div class="add-group-form">
+        <h3>코드 그룹 추가</h3>
+        <div class="form-row">
+          <input 
+            type="text" 
+            v-model="newGroup.id" 
+            placeholder="그룹 ID"
+            class="form-input"
+          >
+          <input 
+            type="text" 
+            v-model="newGroup.name" 
+            placeholder="그룹 이름"
+            class="form-input"
+          >
+          <button @click="addCodeGroup" class="add-button">추가</button>
+        </div>
       </div>
-      <button @click="saveGroup" class="save-button">저장</button>
-      <button @click="closeAddGroupModal" class="cancel-button">취소</button>
     </div>
 
     <!-- 코드 추가 모달 -->
     <div v-if="isAddCodeModalOpen" class="modal">
       <h2>코드 추가</h2>
       <div class="form-group">
+        <label for="codeId">코드 ID</label>
+        <input type="text" id="codeId" v-model="newCode.detailId" />
+      </div>
+      <div class="form-group">
         <label for="codeName">코드명</label>
-        <input type="text" id="codeName" v-model="newCodeName" />
+        <input type="text" id="codeName" v-model="newCode.name" />
       </div>
       <div class="form-group">
         <label for="codeStatus">코드 상태</label>
-        <select id="codeStatus" v-model="newCodeStatus">
+        <select id="codeStatus" v-model="newCode.isActive">
           <option :value="true">활성</option>
           <option :value="false">비활성</option>
         </select>
@@ -118,10 +139,17 @@ export default {
       selectedGroup: null, // 선택된 그룹
       codeDetails: [], // 코드 상세 데이터
       isAddGroupModalOpen: false, // 모달 열림 상태
-      newGroupName: '', // 새 그룹 이름
+      newGroup: {
+        id: '',    // id 필드 추가
+        name: ''
+      },
       isAddCodeModalOpen: false, // 코드 추가 모달 열림 상태
-      newCodeName: '', // 새 코드 이름
-      newCodeStatus: true, // 새 코드 상태 (기본값: 활성)
+      newCode: {
+        detailId: '',
+        name: '',
+        isActive: true,
+        codeGroupId: ''
+      },
       isEditCodeModalOpen: false, // 코드 변경 모달 열림 상태
       editCodeName: '', // 변경할 코드 이름
       editCodeStatus: true, // 변경할 코드 상태 (기본값: 활성)
@@ -158,25 +186,20 @@ export default {
     },
     closeAddGroupModal() {
       this.isAddGroupModalOpen = false; // 모달 닫기
-      this.newGroupName = ''; // 입력 필드 초기화
+      this.newGroup = { id: '', name: '' }; // 입력 필드 초기화
     },
-    async saveGroup() {
-      if (!this.newGroupName) {
-        alert('그룹명을 입력하세요.');
-        return;
-      }
-
-      const requestData = {
-        name: this.newGroupName
-      };
-
+    async addCodeGroup() {
       try {
-        const response = await axios.post('/api/v1/codes/groups', requestData);
-        console.log('그룹 추가 성공:', response.data);
-        this.codeGroups.push(response.data); // 새 그룹 추가
-        this.closeAddGroupModal(); // 모달 닫기
+        if (!this.newGroup.id || !this.newGroup.name) {
+          alert('그룹 ID와 이름을 모두 입력해주세요.');
+          return;
+        }
+        
+        await axios.post('/api/v1/codes/groups', this.newGroup);
+        this.fetchCodeGroups();
+        this.closeAddGroupModal(); // 모달 닫기도 추가
       } catch (error) {
-        console.error('그룹 추가 실패:', error);
+        console.error('코드 그룹 추가 실패:', error);
       }
     },
     selectGroup(group) {
@@ -184,12 +207,17 @@ export default {
       this.fetchCodeDetails(group.id); // 선택된 그룹의 코드 상세 가져오기
     },
     openAddCodeModal() {
-      this.isAddCodeModalOpen = true; // 코드 추가 모달 열기
+      this.isAddCodeModalOpen = true;
+      this.newCode.codeGroupId = this.selectedGroup.id; // 선택된 그룹 ID 설정
     },
     closeAddCodeModal() {
-      this.isAddCodeModalOpen = false; // 코드 추가 모달 닫기
-      this.newCodeName = ''; // 입력 필드 초기화
-      this.newCodeStatus = true; // 상태 초기화
+      this.isAddCodeModalOpen = false;
+      this.newCode = {
+        detailId: '',
+        name: '',
+        isActive: true,
+        codeGroupId: ''
+      };
     },
     async saveCode() {
       if (!this.selectedGroup) {
@@ -197,17 +225,16 @@ export default {
         return;
       }
 
-      const requestData = {
-        isActive: this.newCodeStatus, // 코드 상태
-        name: this.newCodeName, // 코드 이름
-        codeGroupId: this.selectedGroup.id // 선택된 그룹 ID
-      };
+      if (!this.newCode.detailId || !this.newCode.name) {
+        alert('코드 ID와 이름을 모두 입력해주세요.');
+        return;
+      }
 
       try {
-        const response = await axios.post('/api/v1/codes/details', requestData);
+        const response = await axios.post('/api/v1/codes/details', this.newCode);
         console.log('코드 추가 성공:', response.data);
-        this.codeDetails.push(response.data); // 새 코드 추가
-        this.closeAddCodeModal(); // 모달 닫기
+        await this.fetchCodeDetails(this.selectedGroup.id); // 코드 목록 새로고침
+        this.closeAddCodeModal();
       } catch (error) {
         console.error('코드 추가 실패:', error);
       }
@@ -247,15 +274,28 @@ export default {
         console.error('코드 변경 실패:', error);
       }
     },
-    deleteGroup(group) {
+    async deleteGroup(group) {
       if (!group) {
         alert('삭제할 그룹을 선택하세요.');
         return;
       }
 
-      // 삭제 로직 추가
-      console.log('삭제할 그룹:', group);
-      // API 요청을 통해 그룹 삭제 구현
+      if (confirm('정말 이 코드 그룹을 삭제하시겠습니까?')) {
+        try {
+          await axios.delete(`/api/v1/codes/groups/${group.id}`);
+          // 삭제 성공 시 목록 새로고침
+          await this.fetchCodeGroups();
+          
+          // 삭제한 그룹이 현재 선택된 그룹이었다면 선택 해제
+          if (this.selectedGroup && this.selectedGroup.id === group.id) {
+            this.selectedGroup = null;
+            this.codeDetails = [];
+          }
+        } catch (error) {
+          console.error('코드 그룹 삭제 실패:', error);
+          alert('코드 그룹 삭제에 실패했습니다.');
+        }
+      }
     },
     deleteCode(code) {
       if (!code) {
@@ -347,5 +387,31 @@ th, td {
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+}
+
+.add-group-form {
+  margin-bottom: 1rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.no-group-selected {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  margin-top: 1rem;
 }
 </style> 
