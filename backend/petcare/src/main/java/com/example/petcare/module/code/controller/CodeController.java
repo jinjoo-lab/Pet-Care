@@ -6,10 +6,7 @@ import com.example.petcare.module.code.dto.response.CodeDetailResponse;
 import com.example.petcare.module.code.dto.response.CodeGroupResponse;
 import com.example.petcare.module.code.service.CodeService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -40,5 +37,10 @@ public class CodeController {
     @GetMapping("/details")
     public ResponseEntity<List<CodeDetailResponse>> getCodeDetails() {
         return ResponseEntity.ok(codeService.getCodeDetails());
+    }
+
+    @GetMapping("/details/{group-id}")
+    public ResponseEntity<List<CodeDetailResponse>> getCodeDetailsByGroup(@PathVariable("group-id") Long groupId) {
+        return ResponseEntity.ok(codeService.getCodeDetailsByGroup(groupId));
     }
 }

@@ -66,4 +66,18 @@ public class CodeService {
                 .stream().map(c -> codeMapper.codeDetailToResponse(c))
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public List<CodeDetailResponse> getCodeDetailsByGroup(Long groupId) {
+        CodeGroup codeGroup = getCodeGroupEntity(groupId);
+
+        return codeGroup.getCodeDetails().stream()
+                .map(c -> codeMapper.codeDetailToResponse(c))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    private CodeGroup getCodeGroupEntity(Long groupId) {
+        return codeGroupRepository.findById(groupId).orElseThrow(EntityNotFoundException::new);
+    }
 }
