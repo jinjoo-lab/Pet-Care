@@ -22,7 +22,7 @@ public class CodeController {
     }
 
     @PostMapping("/groups")
-    public ResponseEntity<CodeGroupResponse> saveCodeGroup(SaveCodeGroupRequest request) {
+    public ResponseEntity<CodeGroupResponse> saveCodeGroup(@RequestBody SaveCodeGroupRequest request) {
         return ResponseEntity.ok(codeService.createCodeGroup(request));
     }
 
@@ -48,7 +48,7 @@ public class CodeController {
     }
 
     @PostMapping("/details")
-    public ResponseEntity<CodeDetailResponse> saveCodeDetail(SaveCodeDetailRequest request) {
+    public ResponseEntity<CodeDetailResponse> saveCodeDetail(@RequestBody SaveCodeDetailRequest request) {
         return ResponseEntity.ok(codeService.createCodeDetail(request));
     }
 

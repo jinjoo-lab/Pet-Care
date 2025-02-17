@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CodeMapper {
-    public CodeGroup saveCodeGroupRequesToCodeGroup(SaveCodeGroupRequest request) {
+    public CodeGroup saveCodeGroupRequestToCodeGroup(SaveCodeGroupRequest request) {
         return new CodeGroup(
                 request.getName()
         );

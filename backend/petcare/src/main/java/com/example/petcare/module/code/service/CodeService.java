@@ -12,7 +12,6 @@ import com.example.petcare.module.code.mapper.CodeMapper;
 import com.example.petcare.module.code.repository.CodeDetailRepository;
 import com.example.petcare.module.code.repository.CodeGroupRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +34,7 @@ public class CodeService {
 
     public CodeGroupResponse createCodeGroup(SaveCodeGroupRequest request) {
         CodeGroup codeGroup = codeGroupRepository.save(
-                codeMapper.saveCodeGroupRequesToCodeGroup(
+                codeMapper.saveCodeGroupRequestToCodeGroup(
                         request
                 )
         );
