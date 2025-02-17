@@ -32,7 +32,7 @@ public class CodeController {
     }
 
     @GetMapping("/groups/{group-id}")
-    public ResponseEntity<CodeGroupResponse> getCodeGroupById(@PathVariable("group-id") Long groupId) {
+    public ResponseEntity<CodeGroupResponse> getCodeGroupById(@PathVariable("group-id") String groupId) {
         return ResponseEntity.ok(codeService.getCodeGroupById(groupId));
     }
 
@@ -42,7 +42,7 @@ public class CodeController {
     }
 
     @DeleteMapping("/groups/{group-id}")
-    public ResponseEntity<List<CodeGroupResponse>> deleteCodeGroup(@PathVariable("group-id") Long groupId) {
+    public ResponseEntity<List<CodeGroupResponse>> deleteCodeGroup(@PathVariable("group-id") String groupId) {
         codeService.deleteCodeGroup(groupId);
         return ResponseEntity.noContent().build();
     }
@@ -58,12 +58,12 @@ public class CodeController {
     }
 
     @GetMapping("/details/list/{group-id}")
-    public ResponseEntity<List<CodeDetailResponse>> getCodeDetailsByGroup(@PathVariable("group-id") Long groupId) {
+    public ResponseEntity<List<CodeDetailResponse>> getCodeDetailsByGroup(@PathVariable("group-id") String groupId) {
         return ResponseEntity.ok(codeService.getCodeDetailsByGroup(groupId));
     }
 
     @GetMapping("/details/{detail-id}")
-    public ResponseEntity<CodeDetailResponse> getCodeDetailById(@PathVariable("detail-id") Long detailId) {
+    public ResponseEntity<CodeDetailResponse> getCodeDetailById(@PathVariable("detail-id") String detailId) {
         return ResponseEntity.ok(codeService.getCodeDetailsById(detailId));
     }
 
@@ -73,7 +73,7 @@ public class CodeController {
     }
 
     @DeleteMapping("/details/{detail-id}")
-    public ResponseEntity<Void> deleteCodeDetail(@PathVariable("detail-id") Long detailId) {
+    public ResponseEntity<Void> deleteCodeDetail(@PathVariable("detail-id") String detailId) {
         codeService.deleteCodeDetail(detailId);
         return ResponseEntity.noContent().build();
     }

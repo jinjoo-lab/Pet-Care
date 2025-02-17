@@ -23,8 +23,7 @@ import java.util.Set;
 @Table(name = "code_group")
 public class CodeGroup implements Auditable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     @Embedded
     @Setter
@@ -39,7 +38,8 @@ public class CodeGroup implements Auditable {
     )
     private List<CodeDetail> codeDetails = new ArrayList<>();
 
-    public CodeGroup(String name) {
+    public CodeGroup(String id, String name) {
+        this.id = id;
         this.name = name;
     }
 

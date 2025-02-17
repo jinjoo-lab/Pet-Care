@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateCodeGroupRequest {
     private String name;
-    private Long id;
+    private String id;
 }
