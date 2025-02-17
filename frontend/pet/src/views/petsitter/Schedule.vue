@@ -148,6 +148,37 @@
         </div>
       </div>
     </div>
+
+    <div v-if="selectedSchedule" class="schedule-actions">
+      <button @click="showUpdateModal" class="update-button">일정 변경</button>
+    </div>
+
+    <!-- 일정 변경 모달 -->
+    <div v-if="isUpdateModalOpen" class="modal-overlay">
+      <div class="update-modal">
+        <h2>일정 변경</h2>
+        <div class="form-group">
+          <label>시작 시간</label>
+          <select v-model="updateForm.startTime" class="time-select">
+            <option v-for="hour in 24" :key="`start-${hour-1}`" :value="hour-1">
+              {{ formatTime(hour-1) }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>종료 시간</label>
+          <select v-model="updateForm.endTime" class="time-select">
+            <option v-for="hour in 24" :key="`end-${hour-1}`" :value="hour-1">
+              {{ formatTime(hour-1) }}
+            </option>
+          </select>
+        </div>
+        <div class="modal-buttons">
+          <button @click="updateSchedule" class="submit-button">변경하기</button>
+          <button @click="closeUpdateModal" class="cancel-button">취소</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -170,7 +201,13 @@ export default {
         endTime: 0,
         fee: 0
       },
-      selectedReservation: null
+      selectedReservation: null,
+      isUpdateModalOpen: false,
+      updateForm: {
+        id: null,
+        startTime: 0,
+        endTime: 23
+      }
     }
   },
   computed: {
@@ -300,8 +337,8 @@ export default {
       }[status] || ''
     },
     editSchedule(schedule) {
-      // 일정 변경 로직 추가
-      console.log('일정 변경:', schedule)
+      this.selectedSchedule = schedule;
+      this.showUpdateModal();
     },
     async deleteSchedule(scheduleId) {
       try {
@@ -310,6 +347,29 @@ export default {
         await this.fetchSchedules()
       } catch (error) {
         console.error('일정 삭제 실패:', error)
+      }
+    },
+    showUpdateModal() {
+      this.updateForm.id = this.selectedSchedule.id;
+      this.updateForm.startTime = this.selectedSchedule.startTime;
+      this.updateForm.endTime = this.selectedSchedule.endTime;
+      this.isUpdateModalOpen = true;
+    },
+    closeUpdateModal() {
+      this.isUpdateModalOpen = false;
+      this.updateForm = {
+        id: null,
+        startTime: 0,
+        endTime: 23
+      };
+    },
+    async updateSchedule() {
+      try {
+        const response = await axios.put('/api/v1/schedule', this.updateForm);
+        this.closeUpdateModal();
+        await this.fetchSchedules();
+      } catch (error) {
+        console.error('일정 변경 실패:', error);
       }
     }
   },
@@ -712,5 +772,71 @@ export default {
 
 .close-btn:hover {
   background-color: #5a6268;
+}
+
+.update-modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.time-select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.submit-button {
+  padding: 0.5rem 1.5rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-button {
+  padding: 0.5rem 1.5rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.update-button {
+  padding: 0.5rem 1rem;
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.schedule-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
 }
 </style> 
