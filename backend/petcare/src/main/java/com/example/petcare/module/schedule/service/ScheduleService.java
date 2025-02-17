@@ -87,6 +87,12 @@ public class ScheduleService {
 
     @Transactional(readOnly = true)
     public List<SimpleScheduleResponse> findAllSchedules(FindScheduleRequest request) {
+
+        System.out.println("Location : "+request.getLocation());
+        System.out.println("Date : "+ request.getDate());
+        System.out.println("Start : "+ request.getStartTime());
+        System.out.println("End : "+ request.getEndTime());
+
         return scheduleRepository.findScheduleByRequest(
                 request.getLocation(),
                 convertDate(request.getDate()),
