@@ -3,6 +3,7 @@ package com.example.petcare.module.schedule.service;
 import com.example.petcare.module.petsitter.entity.Petsitter;
 import com.example.petcare.module.petsitter.service.PetsitterService;
 import com.example.petcare.module.schedule.dto.request.FindScheduleRequest;
+import com.example.petcare.module.schedule.dto.request.UpdateScheduleRequest;
 import com.example.petcare.module.schedule.dto.response.ScheduleResponse;
 import com.example.petcare.module.schedule.dto.request.SaveScheduleRequest;
 import com.example.petcare.module.schedule.dto.response.SimpleScheduleResponse;
@@ -88,18 +89,21 @@ public class ScheduleService {
     @Transactional(readOnly = true)
     public List<SimpleScheduleResponse> findAllSchedules(FindScheduleRequest request) {
 
-        System.out.println("Location : "+request.getLocation());
-        System.out.println("Date : "+ request.getDate());
-        System.out.println("Start : "+ request.getStartTime());
-        System.out.println("End : "+ request.getEndTime());
-
         return scheduleRepository.findScheduleByRequest(
                 request.getLocation(),
                 convertDate(request.getDate()),
                 request.getStartTime(),
                 request.getEndTime()
         ).stream().map(
-                s -> scheduleMapper.scheduleToSimpleReservationResponse(s)
+                scheduleMapper::scheduleToSimpleReservationResponse
         ).toList();
+    }
+
+    @Transactional
+    public ScheduleResponse updateSchedule(UpdateScheduleRequest request) {
+        Schedule schedule = getScheduleById(request.getId());
+        schedule.updateSchedule(request.getStartTime(), request.getEndTime());
+
+        return scheduleMapper.scheduleToScheduleResponse(schedule);
     }
 }

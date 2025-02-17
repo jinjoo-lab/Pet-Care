@@ -55,4 +55,9 @@ public class Schedule implements Auditable {
         this.endTime = endTime;
         this.timeFee = timeFee;
     }
+
+    public void updateSchedule(Integer startTime, Integer endTime) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
 }

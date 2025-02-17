@@ -38,7 +38,7 @@ const routes = [
   {
     path: '/mypage',
     name: 'MyPage',
-    component: MyPage
+    component: () => import('@/views/MyPage.vue')
   },
   {
     path: '/password',
@@ -65,7 +65,7 @@ const routes = [
   {
     path: '/pets',
     name: 'PetList',
-    component: PetList,
+    component: () => import('@/views/pet/PetList.vue'),
     meta: { requiresAuth: true }
   },
   {
@@ -76,8 +76,8 @@ const routes = [
   },
   {
     path: '/petsitter/info',
-    name: 'PetsitterInfo',
-    component: PetsitterInfo,
+    name: 'PetSitterInfo',
+    component: () => import('@/views/petsitter/Info.vue'),
     meta: { requiresAuth: true }
   },
   {

@@ -129,4 +129,12 @@ public class ReservationService {
         return reservationRepository.findAllByMember(member).stream().map(r -> reservationMapper.reservationToReservationResponse(r))
                 .toList();
     }
+
+    @Transactional
+    public ReservationResponse paidReservation(UserReservationRequest request) {
+        Reservation reservation = getReservationById(request.getReservationId());
+        reservation.updateStatus(ReservationStatus.PAID);
+
+        return reservationMapper.reservationToReservationResponse(reservation);
+    }
 }

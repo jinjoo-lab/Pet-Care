@@ -42,6 +42,11 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.rejectReservation(request));
     }
 
+    @PatchMapping("/paid")
+    public ResponseEntity<ReservationResponse> paidReservation(@RequestBody UserReservationRequest request) {
+        return ResponseEntity.ok(reservationService.paidReservation(request));
+    }
+
     @PutMapping
     public ResponseEntity<ReservationResponse> updateReservation(@RequestBody UpdateReservationRequest request) {
         return ResponseEntity.ok(reservationService.updateReservation(request));
