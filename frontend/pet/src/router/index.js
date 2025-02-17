@@ -82,8 +82,8 @@ const routes = [
   },
   {
     path: '/code-management',
-    name: 'CodeMgtPage',
-    component: CodeMgtPage,
+    name: 'CodeManagement',
+    component: CodeMgtPage
   },
   {
     path: '/payment-test',

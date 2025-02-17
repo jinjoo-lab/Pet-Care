@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SaveCodeDetailRequest {
+    String detailId;
     Boolean isActive;
     String name;
-    Long codeGroupId;
+    String codeGroupId;
 }

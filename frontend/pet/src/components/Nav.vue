@@ -31,6 +31,9 @@
           </template>
         </div>
       </div>
+      <router-link to="/code-management" class="nav-item">
+        코드 관리
+      </router-link>
     </div>
 
     <div class="nav-auth">

@@ -12,12 +12,14 @@ import org.springframework.stereotype.Component;
 public class CodeMapper {
     public CodeGroup saveCodeGroupRequestToCodeGroup(SaveCodeGroupRequest request) {
         return new CodeGroup(
+                request.getId(),
                 request.getName()
         );
     }
 
     public CodeDetail saveCodeDetailToCodeDetail(SaveCodeDetailRequest request, CodeGroup codeGroup) {
         return new CodeDetail(
+                request.getDetailId(),
                 request.getIsActive(),
                 request.getName(),
                 codeGroup

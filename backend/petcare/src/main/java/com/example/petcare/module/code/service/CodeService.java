@@ -71,7 +71,7 @@ public class CodeService {
     }
 
     @Transactional(readOnly = true)
-    public List<CodeDetailResponse> getCodeDetailsByGroup(Long groupId) {
+    public List<CodeDetailResponse> getCodeDetailsByGroup(String groupId) {
         CodeGroup codeGroup = getCodeGroupEntity(groupId);
 
         return codeGroup.getCodeDetails().stream()
@@ -80,24 +80,27 @@ public class CodeService {
     }
 
     @Transactional(readOnly = true)
-    public CodeGroup getCodeGroupEntity(Long groupId) {
+    public CodeGroup getCodeGroupEntity(String groupId) {
         return codeGroupRepository.findById(groupId).orElseThrow(EntityNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
-    public CodeDetail getCodeDetailEntity(Long detailId) {
+    public CodeDetail getCodeDetailEntity(String detailId) {
         return codeDetailRepository.findById(detailId).orElseThrow(EntityNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
-    public CodeGroupResponse getCodeGroupById(Long groupId) {
+    public CodeGroupResponse getCodeGroupById(String groupId) {
         return codeMapper.codeGroupToResponse(getCodeGroupEntity(groupId));
     }
 
     @Transactional
-    public void deleteCodeGroup(Long groupId) {
+    public void deleteCodeGroup(String groupId) {
         CodeGroup codeGroup = getCodeGroupEntity(groupId);
         codeGroup.getBaseEntity().setDeletedAt(LocalDateTime.now());
+
+        codeGroup.getCodeDetails()
+                .forEach(d -> d.getBaseEntity().setDeletedAt(LocalDateTime.now()));
     }
 
     @Transactional
@@ -109,7 +112,7 @@ public class CodeService {
     }
 
     @Transactional(readOnly = true)
-    public CodeDetailResponse getCodeDetailsById(Long detailId) {
+    public CodeDetailResponse getCodeDetailsById(String detailId) {
         CodeDetail codeDetail = getCodeDetailEntity(detailId);
         return codeMapper.codeDetailToResponse(codeDetail);
     }
@@ -125,7 +128,7 @@ public class CodeService {
     }
 
     @Transactional
-    public void deleteCodeDetail(Long detailId) {
+    public void deleteCodeDetail(String detailId) {
         CodeDetail codeDetail = getCodeDetailEntity(detailId);
         codeDetail.getBaseEntity().setDeletedAt(LocalDateTime.now());
     }

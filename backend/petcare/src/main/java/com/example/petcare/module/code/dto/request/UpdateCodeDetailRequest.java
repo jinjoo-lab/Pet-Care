@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class UpdateCodeDetailRequest {
     Boolean isActive;
     String name;
-    Long codeDetailId;
+    String codeDetailId;
 }

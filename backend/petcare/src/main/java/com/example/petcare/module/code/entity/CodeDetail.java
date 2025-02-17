@@ -19,8 +19,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(name = "code_detail")
 public class CodeDetail implements Auditable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     @Embedded
     @Setter
@@ -35,7 +34,8 @@ public class CodeDetail implements Auditable {
     @JoinColumn(name = "code_group_id")
     private CodeGroup codeGroup;
 
-    public CodeDetail(Boolean isActive, String name, CodeGroup codeGroup) {
+    public CodeDetail(String id, Boolean isActive, String name, CodeGroup codeGroup) {
+        this.id = id;
         this.isActive = isActive;
         this.name = name;
         this.codeGroup = codeGroup;

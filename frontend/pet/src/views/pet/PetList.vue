@@ -34,9 +34,13 @@
           </div>
           <div class="form-group">
             <label for="petType">종류</label>
-            <select id="petType" v-model="newPet.petType" required>
-              <option value="DOG">강아지</option>
-              <option value="CAT">고양이</option>
+            <select id="petType" v-model="newPet.type" required>
+              <option value="">선택하세요</option>
+              <option value="강아지">강아지</option>
+              <option value="고양이">고양이</option>
+              <option value="새">새</option>
+              <option value="파충류">파충류</option>
+              <option value="기타">기타</option>
             </select>
           </div>
           <div class="form-group">
