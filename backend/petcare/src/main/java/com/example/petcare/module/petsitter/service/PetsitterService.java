@@ -108,6 +108,15 @@ public class PetsitterService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public SitterResponse getPetSitterByMember(Long id) {
+        Member member = memberService.getMemberEntityById(id);
+
+        return petsitterMapper.petSitterToResponse(
+                petsitterRepository.findByMember(member).orElseThrow(EntityExistsException::new)
+        );
+    }
+
     private Boolean isExistPetsitter(Long id) {
         return memberService.getMemberEntityById(id).getPetsitter() != null;
     }

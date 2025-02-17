@@ -38,6 +38,11 @@ public class PetsitterController {
         return ResponseEntity.ok(petsitterService.getPetsitterByMemberId(id));
     }
 
+    @GetMapping("/member/{id}")
+    public ResponseEntity<SitterResponse> getPetsitterByMember(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(petsitterService.getPetSitterByMember(id));
+    }
+
     // 펫시터 정보 수정
     @GetMapping("/init")
     public ResponseEntity<Void> init() {
