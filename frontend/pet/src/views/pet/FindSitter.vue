@@ -140,7 +140,7 @@
                 </div>
                 <div class="detail-row">
                   <span class="detail-label">시간당 요금:</span>
-                  <span>{{ formatPrice(schedule.timeFee) }}원</span>
+                  <span>{{ schedule.timeFee ? formatPrice(schedule.timeFee) : 0 }}원</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-label">돌봄 가능:</span>
@@ -292,6 +292,7 @@ export default {
       return `${String(hour).padStart(2, '0')}:00`;
     },
     formatPrice(price) {
+      if (!price && price !== 0) return 0;
       return price.toLocaleString();
     },
     async requestService(schedule) {

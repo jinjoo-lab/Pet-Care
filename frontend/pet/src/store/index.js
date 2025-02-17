@@ -43,7 +43,7 @@ export default createStore({
       try {
         if (!state.userInfo) return;
         
-        const response = await axios.get(`/api/v1/petsitter/${state.userInfo.id}`);
+        const response = await axios.get(`/api/v1/petsitter/member/${state.userInfo.id}`);
         commit('setPetSitterInfo', response.data);
       } catch (error) {
         console.error('펫시터 정보 조회 실패:', error);
