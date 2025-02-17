@@ -40,4 +40,12 @@ public class CodeDetail implements Auditable {
         this.name = name;
         this.codeGroup = codeGroup;
     }
+
+    public void updateDetailName(String name) {
+        this.name = name;
+    }
+
+    public void updateActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
 }

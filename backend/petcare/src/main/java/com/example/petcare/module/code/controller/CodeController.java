@@ -2,6 +2,8 @@ package com.example.petcare.module.code.controller;
 
 import com.example.petcare.module.code.dto.request.SaveCodeDetailRequest;
 import com.example.petcare.module.code.dto.request.SaveCodeGroupRequest;
+import com.example.petcare.module.code.dto.request.UpdateCodeDetailRequest;
+import com.example.petcare.module.code.dto.request.UpdateCodeGroupRequest;
 import com.example.petcare.module.code.dto.response.CodeDetailResponse;
 import com.example.petcare.module.code.dto.response.CodeGroupResponse;
 import com.example.petcare.module.code.service.CodeService;
@@ -24,14 +26,30 @@ public class CodeController {
         return ResponseEntity.ok(codeService.createCodeGroup(request));
     }
 
-    @PostMapping("/details")
-    public ResponseEntity<CodeDetailResponse> saveCodeDetail(SaveCodeDetailRequest request) {
-        return ResponseEntity.ok(codeService.createCodeDetail(request));
-    }
-
     @GetMapping("/groups")
     public ResponseEntity<List<CodeGroupResponse>> getCodeGroups() {
         return ResponseEntity.ok(codeService.getCodeGroups());
+    }
+
+    @GetMapping("/groups/{group-id}")
+    public ResponseEntity<CodeGroupResponse> getCodeGroupById(@PathVariable("group-id") Long groupId) {
+        return ResponseEntity.ok(codeService.getCodeGroupById(groupId));
+    }
+
+    @PutMapping("/groups")
+    public ResponseEntity<CodeGroupResponse> updateCodeGroup(@RequestBody UpdateCodeGroupRequest request) {
+        return ResponseEntity.ok(codeService.updateCodeGroup(request));
+    }
+
+    @DeleteMapping("/groups/{group-id}")
+    public ResponseEntity<List<CodeGroupResponse>> deleteCodeGroup(@PathVariable("group-id") Long groupId) {
+        codeService.deleteCodeGroup(groupId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/details")
+    public ResponseEntity<CodeDetailResponse> saveCodeDetail(SaveCodeDetailRequest request) {
+        return ResponseEntity.ok(codeService.createCodeDetail(request));
     }
 
     @GetMapping("/details")
@@ -39,8 +57,24 @@ public class CodeController {
         return ResponseEntity.ok(codeService.getCodeDetails());
     }
 
-    @GetMapping("/details/{group-id}")
+    @GetMapping("/details/list/{group-id}")
     public ResponseEntity<List<CodeDetailResponse>> getCodeDetailsByGroup(@PathVariable("group-id") Long groupId) {
         return ResponseEntity.ok(codeService.getCodeDetailsByGroup(groupId));
+    }
+
+    @GetMapping("/details/{detail-id}")
+    public ResponseEntity<CodeDetailResponse> getCodeDetailById(@PathVariable("detail-id") Long detailId) {
+        return ResponseEntity.ok(codeService.getCodeDetailsById(detailId));
+    }
+
+    @PutMapping("/details")
+    public ResponseEntity<CodeDetailResponse> updateCodeDetail(@RequestBody UpdateCodeDetailRequest request) {
+        return ResponseEntity.ok(codeService.updateCodeDetail(request));
+    }
+
+    @DeleteMapping("/details/{detail-id}")
+    public ResponseEntity<Void> deleteCodeDetail(@PathVariable("detail-id") Long detailId) {
+        codeService.deleteCodeDetail(detailId);
+        return ResponseEntity.noContent().build();
     }
 }

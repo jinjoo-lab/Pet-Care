@@ -42,4 +42,8 @@ public class CodeGroup implements Auditable {
     public CodeGroup(String name) {
         this.name = name;
     }
+
+    public void updateCodeGroup(String name) {
+        this.name = name;
+    }
 }
