@@ -30,24 +30,29 @@
     <div class="code-detail" v-if="selectedGroup">
       <h2>코드상세: {{ selectedGroup.name }}</h2>
       <div class="code-detail-header">
-        <button @click="addCode" class="add-button">+추가</button>
-        <button @click="deleteCode" class="delete-button">삭제</button>
+        <button @click="openAddCodeModal" class="add-button">+추가</button>
       </div>
       <table>
         <thead>
           <tr>
-            <th>순서</th>
             <th>코드명</th>
             <th>코드ID</th>
-            <th>코드설명</th>
+            <th>코드상태</th>
+            <th>변경</th>
+            <th>삭제</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="code in selectedGroup.codes" :key="code.id">
-            <td>{{ code.order }}</td>
+          <tr v-for="code in codeDetails" :key="code.id">
             <td>{{ code.name }}</td>
             <td>{{ code.id }}</td>
-            <td>{{ code.description }}</td>
+            <td>{{ code.isActive ? '활성' : '비활성' }}</td>
+            <td>
+              <button @click.stop="openEditCodeModal(code)" class="edit-button">변경</button>
+            </td>
+            <td>
+              <button @click.stop="deleteCode(code.id)" class="delete-button">삭제</button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -63,6 +68,42 @@
       <button @click="saveGroup" class="save-button">저장</button>
       <button @click="closeAddGroupModal" class="cancel-button">취소</button>
     </div>
+
+    <!-- 코드 추가 모달 -->
+    <div v-if="isAddCodeModalOpen" class="modal">
+      <h2>코드 추가</h2>
+      <div class="form-group">
+        <label for="codeName">코드명</label>
+        <input type="text" id="codeName" v-model="newCodeName" />
+      </div>
+      <div class="form-group">
+        <label for="codeStatus">코드 상태</label>
+        <select id="codeStatus" v-model="newCodeStatus">
+          <option :value="true">활성</option>
+          <option :value="false">비활성</option>
+        </select>
+      </div>
+      <button @click="saveCode" class="save-button">저장</button>
+      <button @click="closeAddCodeModal" class="cancel-button">취소</button>
+    </div>
+
+    <!-- 코드 변경 모달 -->
+    <div v-if="isEditCodeModalOpen" class="modal">
+      <h2>코드 변경</h2>
+      <div class="form-group">
+        <label for="editCodeName">코드명</label>
+        <input type="text" id="editCodeName" v-model="editCodeName" />
+      </div>
+      <div class="form-group">
+        <label for="editCodeStatus">코드 상태</label>
+        <select id="editCodeStatus" v-model="editCodeStatus">
+          <option :value="true">활성</option>
+          <option :value="false">비활성</option>
+        </select>
+      </div>
+      <button @click="updateCode" class="save-button">저장</button>
+      <button @click="closeEditCodeModal" class="cancel-button">취소</button>
+    </div>
   </div>
 </template>
 
@@ -75,8 +116,16 @@ export default {
     return {
       codeGroups: [], // 코드 그룹 데이터
       selectedGroup: null, // 선택된 그룹
+      codeDetails: [], // 코드 상세 데이터
       isAddGroupModalOpen: false, // 모달 열림 상태
-      newGroupName: '' // 새 그룹 이름
+      newGroupName: '', // 새 그룹 이름
+      isAddCodeModalOpen: false, // 코드 추가 모달 열림 상태
+      newCodeName: '', // 새 코드 이름
+      newCodeStatus: true, // 새 코드 상태 (기본값: 활성)
+      isEditCodeModalOpen: false, // 코드 변경 모달 열림 상태
+      editCodeName: '', // 변경할 코드 이름
+      editCodeStatus: true, // 변경할 코드 상태 (기본값: 활성)
+      codeToEdit: null // 변경할 코드 정보
     }
   },
   async created() {
@@ -87,8 +136,21 @@ export default {
       try {
         const response = await axios.get('/api/v1/codes/groups');
         this.codeGroups = response.data; // 응답 데이터를 코드 그룹에 저장
+        // 각 그룹의 codes 배열 초기화
+        this.codeGroups.forEach(group => {
+          group.codes = group.codes || []; // codes가 없으면 빈 배열로 초기화
+        });
       } catch (error) {
         console.error('코드 그룹 가져오기 실패:', error);
+      }
+    },
+    async fetchCodeDetails(groupId) {
+      try {
+        const response = await axios.get(`/api/v1/codes/details/list/${groupId}`);
+        this.codeDetails = response.data; // 응답 데이터를 코드 상세에 저장
+        console.log('코드 상세 가져오기 성공:', this.codeDetails); // 디버깅용 로그
+      } catch (error) {
+        console.error('코드 상세 가져오기 실패:', error);
       }
     },
     openAddGroupModal() {
@@ -119,6 +181,71 @@ export default {
     },
     selectGroup(group) {
       this.selectedGroup = group; // 선택된 그룹 설정
+      this.fetchCodeDetails(group.id); // 선택된 그룹의 코드 상세 가져오기
+    },
+    openAddCodeModal() {
+      this.isAddCodeModalOpen = true; // 코드 추가 모달 열기
+    },
+    closeAddCodeModal() {
+      this.isAddCodeModalOpen = false; // 코드 추가 모달 닫기
+      this.newCodeName = ''; // 입력 필드 초기화
+      this.newCodeStatus = true; // 상태 초기화
+    },
+    async saveCode() {
+      if (!this.selectedGroup) {
+        alert('코드 그룹을 선택하세요.');
+        return;
+      }
+
+      const requestData = {
+        isActive: this.newCodeStatus, // 코드 상태
+        name: this.newCodeName, // 코드 이름
+        codeGroupId: this.selectedGroup.id // 선택된 그룹 ID
+      };
+
+      try {
+        const response = await axios.post('/api/v1/codes/details', requestData);
+        console.log('코드 추가 성공:', response.data);
+        this.codeDetails.push(response.data); // 새 코드 추가
+        this.closeAddCodeModal(); // 모달 닫기
+      } catch (error) {
+        console.error('코드 추가 실패:', error);
+      }
+    },
+    openEditCodeModal(code) {
+      this.codeToEdit = code; // 변경할 코드 설정
+      this.editCodeName = code.name; // 코드명 설정
+      this.editCodeStatus = code.isActive; // 코드 상태 설정
+      this.isEditCodeModalOpen = true; // 코드 변경 모달 열기
+    },
+    closeEditCodeModal() {
+      this.isEditCodeModalOpen = false; // 코드 변경 모달 닫기
+      this.editCodeName = ''; // 입력 필드 초기화
+      this.editCodeStatus = true; // 상태 초기화
+    },
+    async updateCode() {
+      if (!this.codeToEdit) {
+        alert('변경할 코드를 선택하세요.');
+        return;
+      }
+
+      const requestData = {
+        isActive: this.editCodeStatus, // 코드 상태
+        name: this.editCodeName, // 코드 이름
+        codeDetailId: this.codeToEdit.id // 선택된 코드 ID
+      };
+
+      try {
+        const response = await axios.put('/api/v1/codes/details', requestData);
+        console.log('코드 변경 성공:', response.data);
+        const index = this.codeDetails.findIndex(code => code.id === this.codeToEdit.id);
+        if (index !== -1) {
+          this.codeDetails[index] = response.data; // 변경된 코드로 업데이트
+        }
+        this.closeEditCodeModal(); // 모달 닫기
+      } catch (error) {
+        console.error('코드 변경 실패:', error);
+      }
     },
     deleteGroup(group) {
       if (!group) {
@@ -130,13 +257,20 @@ export default {
       console.log('삭제할 그룹:', group);
       // API 요청을 통해 그룹 삭제 구현
     },
-    addCode() {
-      // 코드 추가 로직
-    },
-    deleteCode() {
-      // 선택된 코드 삭제 로직 추가
-      console.log('삭제할 코드:', this.selectedGroup.codes);
+    deleteCode(code) {
+      if (!code) {
+        alert('삭제할 코드를 선택하세요.');
+        return;
+      }
+
+      // 삭제 로직 추가
+      console.log('삭제할 코드:', code);
       // API 요청을 통해 코드 삭제 구현
+      axios.delete(`/api/v1/codes/details/${code}`).then(() => {
+        this.codeDetails = this.codeDetails.filter(c => c.id !== code); // 코드 목록에서 삭제
+      }).catch(error => {
+        console.error('코드 삭제 실패:', error);
+      });
     }
   }
 }
