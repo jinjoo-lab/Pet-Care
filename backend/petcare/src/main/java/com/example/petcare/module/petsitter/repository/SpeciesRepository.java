@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface SpeciesRepository extends JpaRepository<Species, Long> {
     List<Species> findAllByTopSpeciesIn(List<String> topSpecies);
+
+    Boolean existsByTopSpecies(String name);
 }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -105,5 +106,16 @@ public class ScheduleService {
         schedule.updateSchedule(request.getStartTime(), request.getEndTime());
 
         return scheduleMapper.scheduleToScheduleResponse(schedule);
+    }
+
+    @Transactional
+    public void deleteSchedule(Long id) {
+        Schedule schedule = getScheduleById(id);
+
+        schedule.getBaseEntity().setDeletedAt(LocalDateTime.now());
+
+        schedule.getReservations().forEach(
+                x -> x.getBaseEntity().setDeletedAt(LocalDateTime.now())
+        );
     }
 }

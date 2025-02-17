@@ -69,6 +69,7 @@ public class ReservationService {
     public ReservationResponse approveReservation(ApproveReservationRequest request) {
         Reservation reservation = getReservationById(request.getReservationId());
 
+        System.out.println(reservation.getId()+" : "+reservation.getStatus());
         Schedule schedule = scheduleService.getScheduleById(request.getScheduleId());
 
         if (schedule.getPetSitter().getId().equals(request.getPetSitterId()) && reservation.getStatus().equals(ReservationStatus.REQUEST)) {

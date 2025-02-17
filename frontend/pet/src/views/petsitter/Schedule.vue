@@ -95,11 +95,11 @@
           </div>
 
           <div class="form-group">
-            <label for="fee">시간당 요금 (원)</label>
+            <label for="timeFee">시간당 요금 (원)</label>
             <input 
               type="number" 
-              id="fee"
-              v-model="newSchedule.fee"
+              id="timeFee"
+              v-model="newSchedule.timeFee"
               required
               placeholder="예: 15000"
             >
@@ -186,6 +186,7 @@
 import axios from 'axios'
 import { format, addDays, startOfWeek } from 'date-fns'
 import { ko } from 'date-fns/locale'
+import { mapState } from 'vuex'
 
 export default {
   name: 'PetsitterSchedule',
@@ -199,7 +200,7 @@ export default {
         date: '',
         startTime: 0,
         endTime: 0,
-        fee: 0
+        timeFee: 0
       },
       selectedReservation: null,
       isUpdateModalOpen: false,
@@ -211,6 +212,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['petSitterInfo']),
     weekDates() {
       return Array.from({ length: 7 }, (_, i) => {
         const date = addDays(this.weekStart, i)
@@ -225,14 +227,14 @@ export default {
         this.newSchedule.date &&
         this.newSchedule.startTime !== null &&
         this.newSchedule.endTime !== null &&
-        this.newSchedule.fee > 0
+        this.newSchedule.timeFee > 0
       )
     },
     filteredSchedules() {
       return this.schedules.filter(schedule => schedule.date === this.selectedDate)
     },
     petSitterId() {
-      return this.$store.state.userInfo.id
+      return this.petSitterInfo?.petSitterId;
     }
   },
   methods: {
@@ -244,13 +246,15 @@ export default {
       if (!this.selectedDate) return
 
       try {
+        console.log('현재 펫시터 정보:', this.petSitterInfo);
+        console.log('펫시터 ID:', this.petSitterId);
+        
         const formattedDate = format(new Date(this.selectedDate), 'yyyy-MM-dd')
         const response = await axios.get(`/api/v1/schedule/list/${this.petSitterId}/${formattedDate}`)
         this.schedules = response.data
         console.log('스케줄 불러오기 성공:', this.schedules)
       } catch (error) {
         console.error('스케줄 불러오기 실패:', error)
-        // 에러 처리 로직 추가 가능
       }
     },
     formatDate(date) {
@@ -273,13 +277,14 @@ export default {
         const requestData = {
           reservationId,
           scheduleId,
-          petSitterId: this.$store.state.userInfo.id
+          petSitterId: this.petSitterInfo.petSitterId
         }
-        await axios.patch('/api/v1/reservations/approve', requestData)
-        console.log('예약 수락 성공')
-        this.fetchSchedules()
+        await axios.patch('/api/v1/reservations/approve', requestData);
+        alert('예약을 수락했습니다.');
+        await this.fetchSchedules();
       } catch (error) {
-        console.error('예약 수락 실패:', error)
+        console.error('예약 수락 실패:', error);
+        alert('예약 수락에 실패했습니다.');
       }
     },
     async rejectReservation(reservationId, scheduleId) {
@@ -297,14 +302,16 @@ export default {
       }
     },
     async handleAddSchedule() {
+      if (!this.isScheduleFormValid) return
+
       try {
         const requestData = {
+          ...this.newSchedule,
           petSitterId: this.petSitterId,
-          date: this.newSchedule.date,
-          startTime: this.newSchedule.startTime,
-          endTime: this.newSchedule.endTime,
-          timeFee: this.newSchedule.fee
         }
+
+        // 요청 전에 데이터 구조 확인
+        console.log('일정 등록 요청 데이터:', requestData);
 
         const response = await axios.post('/api/v1/schedule', requestData)
         console.log('일정 등록 성공:', response.data)
@@ -341,12 +348,15 @@ export default {
       this.showUpdateModal();
     },
     async deleteSchedule(scheduleId) {
-      try {
-        await axios.delete(`/api/v1/schedule/${scheduleId}`)
-        console.log('일정 삭제 성공')
-        await this.fetchSchedules()
-      } catch (error) {
-        console.error('일정 삭제 실패:', error)
+      if (confirm('정말 이 일정을 삭제하시겠습니까?')) {
+        try {
+          await axios.delete(`/api/v1/schedule/${scheduleId}`);
+          // 삭제 후 일정 목록 새로고침
+          await this.fetchSchedules();
+        } catch (error) {
+          console.error('일정 삭제 실패:', error);
+          alert('일정 삭제에 실패했습니다.');
+        }
       }
     },
     showUpdateModal() {
@@ -838,5 +848,19 @@ export default {
   display: flex;
   justify-content: flex-end;
   margin-top: 1rem;
+}
+
+.delete-button {
+  padding: 0.5rem 1rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
 }
 </style> 
