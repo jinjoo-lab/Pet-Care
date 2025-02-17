@@ -305,14 +305,12 @@ export default {
       if (!this.isScheduleFormValid) return
 
       try {
-        console.log('일정 등록 시 펫시터 정보:', this.petSitterInfo);
-        console.log('일정 등록 시 펫시터 ID:', this.petSitterId);
-        
         const requestData = {
           ...this.newSchedule,
           petSitterId: this.petSitterId,
         }
 
+        // 요청 전에 데이터 구조 확인
         console.log('일정 등록 요청 데이터:', requestData);
 
         const response = await axios.post('/api/v1/schedule', requestData)
