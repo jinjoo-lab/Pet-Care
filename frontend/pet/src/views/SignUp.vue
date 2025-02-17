@@ -95,8 +95,9 @@
   </div>
 </template>
   
-  <script>
+<script>
 import axios from "axios";
+import { format } from 'date-fns'
 
 export default {
   name: "SignUp",
@@ -107,7 +108,7 @@ export default {
         email: "",
         password: "",
         passwordConfirm: "",
-        phone: "",
+        phone: ""
       },
       isEmailVerified: false,
       emailMessage: "",
@@ -161,25 +162,26 @@ export default {
       if (!this.isFormValid) return;
 
       try {
-        const response = await axios.post("/api/v1/members", {
+        const requestData = {
           email: this.formData.email,
           password: this.formData.password,
           name: this.formData.name,
           phone: this.formData.phone,
-        });
+        };
+
+        const response = await axios.post("/api/v1/members", requestData);
 
         console.log("회원가입 성공:", response.data);
         this.$router.push("/login");
       } catch (error) {
         console.error("회원가입 실패:", error);
-        // 에러 처리 로직 추가 가능
       }
     },
   },
 };
 </script>
   
-  <style scoped>
+<style scoped>
 .signup-container {
   width: 100%;
   max-width: 400px;

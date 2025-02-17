@@ -23,42 +23,32 @@
 
     <div v-if="selectedDate" class="schedule-details">
       <h3>{{ formatFullDate(selectedDate) }} 일정</h3>
-      <div class="schedule-list">
-        <div v-if="!filteredSchedules.length" class="no-schedule">
-          예약된 일정이 없습니다.
+      <div v-for="schedule in filteredSchedules" :key="schedule.id" class="schedule-item">
+        <div class="time">
+          {{ formatTime(schedule.startTime) }} ~ {{ formatTime(schedule.endTime) }}
         </div>
-        <div v-for="schedule in filteredSchedules" :key="schedule.id" class="schedule-item">
-          <div class="time">
-            {{ formatTime(schedule.startTime) }} ~ {{ formatTime(schedule.endTime) }}
-          </div>
-          <div class="status-actions">
-            <button 
-              v-if="schedule.status === '예약요청'" 
-              class="action-btn accept"
-              @click="handleAccept(schedule.id)"
-            >
-              수락
-            </button>
-            <button 
-              v-if="schedule.status === '예약요청'"
-              class="action-btn reject"
-              @click="handleReject(schedule.id)"
-            >
-              거절
-            </button>
-            <button 
-              class="action-btn"
-              :class="schedule.status"
-              @click="showReservationDetail(schedule)"
-            >
-              {{ schedule.status }}
-            </button>
+        <div class="schedule-actions">
+          <button @click="editSchedule(schedule)" class="edit-btn">일정 변경</button>
+          <button @click="deleteSchedule(schedule.id)" class="delete-btn">일정 삭제</button>
+        </div>
+        <div class="reservations">
+          <div v-for="reservation in schedule.reservations" :key="reservation.id" class="reservation-card">
+            <div class="reservation-info">
+              <span :class="['status', getStatusClass(reservation.status)]">{{ getStatusKorean(reservation.status) }}</span>
+              <span class="member">{{ reservation.member.name }}</span>
+              <span class="pets">{{ reservation.pets.map(pet => pet.name).join(', ') }}</span>
+              <span class="time">{{ formatTime(reservation.startTime) }} ~ {{ formatTime(reservation.endTime) }}</span>
+            </div>
+            <div class="reservation-actions">
+              <button v-if="reservation.status === 'REQUEST'" @click="approveReservation(reservation.id, schedule.id)" class="accept-btn">수락</button>
+              <button v-if="reservation.status === 'REQUEST'" @click="rejectReservation(reservation.id, schedule.id)" class="reject-btn">거절</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="schedule-actions">
+    <div class="schedule-actions" v-if="!filteredSchedules.length">
       <button @click="showAddScheduleForm = true" class="add-schedule-btn">
         일정 등록
       </button>
@@ -76,33 +66,6 @@
               v-model="newSchedule.date"
               required
             >
-          </div>
-          
-          <div class="form-group">
-            <label>제공 서비스</label>
-            <div class="checkbox-group">
-              <label class="checkbox-label">
-                <input 
-                  type="checkbox" 
-                  v-model="newSchedule.services" 
-                  value="산책"
-                > 산책
-              </label>
-              <label class="checkbox-label">
-                <input 
-                  type="checkbox" 
-                  v-model="newSchedule.services" 
-                  value="방문돌봄"
-                > 방문 돌봄
-              </label>
-              <label class="checkbox-label">
-                <input 
-                  type="checkbox" 
-                  v-model="newSchedule.services" 
-                  value="위탁돌봄"
-                > 위탁 돌봄
-              </label>
-            </div>
           </div>
           
           <div class="form-group">
@@ -132,27 +95,19 @@
           </div>
 
           <div class="form-group">
-            <label for="price">시간당 요금 (원)</label>
+            <label for="fee">시간당 요금 (원)</label>
             <input 
               type="number" 
-              id="price" 
-              v-model="newSchedule.price"
+              id="fee"
+              v-model="newSchedule.fee"
               required
-              min="0"
-              step="1000"
               placeholder="예: 15000"
             >
           </div>
 
           <div class="modal-actions">
-            <button type="submit" class="submit-btn" :disabled="!isScheduleFormValid">등록</button>
-            <button 
-              type="button" 
-              @click="showAddScheduleForm = false" 
-              class="cancel-btn"
-            >
-              취소
-            </button>
+            <button type="submit" class="submit-btn">등록</button>
+            <button type="button" class="cancel-btn" @click="showAddScheduleForm = false">취소</button>
           </div>
         </form>
       </div>
@@ -206,112 +161,14 @@ export default {
   data() {
     return {
       weekStart: startOfWeek(new Date(), { weekStartsOn: 1 }),
-      selectedDate: format(new Date(), 'yyyy-MM-dd'),
-      schedules: [
-        {
-          id: 1,
-          startTime: 9,
-          endTime: 11,
-          status: '예약요청',
-          services: ['산책', '방문돌봄'],
-          price: 15000,
-          userName: '김철수',
-          petName: '멍멍이',
-          petType: '강아지',
-          note: '산책을 매우 좋아해요'
-        },
-        {
-          id: 2,
-          startTime: 11,
-          endTime: 13,
-          status: '예약요청',
-          services: ['위탁돌봄'],
-          price: 20000,
-          userName: '이영희',
-          petName: '나비',
-          petType: '고양이',
-          note: '낯을 많이 가리는 편이에요'
-        },
-        {
-          id: 3,
-          startTime: 13,
-          endTime: 15,
-          status: '예약거절',
-          services: ['산책'],
-          price: 12000
-        },
-        {
-          id: 4,
-          startTime: 15,
-          endTime: 17,
-          status: '예약확정',
-          services: ['방문돌봄', '산책'],
-          price: 18000,
-          userName: '박지민',
-          petName: '해피',
-          petType: '강아지',
-          note: '간식을 매우 좋아합니다'
-        },
-        {
-          id: 5,
-          startTime: 17,
-          endTime: 19,
-          status: '예약요청',
-          services: ['위탁돌봄'],
-          price: 25000,
-          userName: '최수진',
-          petName: '달이',
-          petType: '고양이',
-          note: '특별한 약을 복용중입니다'
-        },
-        {
-          id: 6,
-          startTime: 10,
-          endTime: 12,
-          status: '예약확정',
-          services: ['산책'],
-          price: 13000
-        },
-        {
-          id: 7,
-          startTime: 14,
-          endTime: 16,
-          status: '예약요청',
-          services: ['방문돌봄'],
-          price: 16000
-        },
-        {
-          id: 8,
-          startTime: 16,
-          endTime: 18,
-          status: '예약확정',
-          services: ['위탁돌봄', '산책'],
-          price: 22000
-        },
-        {
-          id: 9,
-          startTime: 12,
-          endTime: 14,
-          status: '예약거절',
-          services: ['방문돌봄'],
-          price: 14000
-        },
-        {
-          id: 10,
-          startTime: 18,
-          endTime: 20,
-          status: '예약요청',
-          services: ['위탁돌봄', '방문돌봄'],
-          price: 23000
-        }
-      ],
+      selectedDate: null,
+      schedules: [],
       showAddScheduleForm: false,
       newSchedule: {
         date: '',
-        services: [],
-        startTime: 9,
-        endTime: 18,
-        price: null
+        startTime: 0,
+        endTime: 0,
+        fee: 0
       },
       selectedReservation: null
     }
@@ -329,29 +186,44 @@ export default {
     isScheduleFormValid() {
       return (
         this.newSchedule.date &&
-        this.newSchedule.services.length > 0 &&
         this.newSchedule.startTime !== null &&
         this.newSchedule.endTime !== null &&
-        this.newSchedule.price > 0
+        this.newSchedule.fee > 0
       )
     },
     filteredSchedules() {
-      return this.schedules.filter(schedule => schedule.status !== '예약거절')
+      return this.schedules.filter(schedule => schedule.date === this.selectedDate)
+    },
+    petSitterId() {
+      return this.$store.state.userInfo.id
     }
   },
   methods: {
+    async selectDate(date) {
+      this.selectedDate = date
+      await this.fetchSchedules()
+    },
+    async fetchSchedules() {
+      if (!this.selectedDate) return
+
+      try {
+        const formattedDate = format(new Date(this.selectedDate), 'yyyy-MM-dd')
+        const response = await axios.get(`/api/v1/schedule/list/${this.petSitterId}/${formattedDate}`)
+        this.schedules = response.data
+        console.log('스케줄 불러오기 성공:', this.schedules)
+      } catch (error) {
+        console.error('스케줄 불러오기 실패:', error)
+        // 에러 처리 로직 추가 가능
+      }
+    },
     formatDate(date) {
-      return format(new Date(date), 'M.d')
+      return format(new Date(date), 'MM.dd')
     },
     formatFullDate(date) {
       return format(new Date(date), 'yyyy년 M월 d일')
     },
-    formatTime(time) {
-      return `${String(time).padStart(2, '0')}:00`
-    },
-    selectDate(date) {
-      this.selectedDate = date
-      this.fetchSchedules(date)
+    formatTime(hour) {
+      return `${String(hour).padStart(2, '0')}:00`
     },
     movePreviousWeek() {
       this.weekStart = addDays(this.weekStart, -7)
@@ -359,45 +231,90 @@ export default {
     moveNextWeek() {
       this.weekStart = addDays(this.weekStart, 7)
     },
-    async fetchSchedules(date) {
+    async approveReservation(reservationId, scheduleId) {
       try {
-        const response = await axios.get(`/api/v1/petsitter/schedules/${date}`)
-        this.schedules = response.data
-      } catch (error) {
-        console.error('일정 조회 실패:', error)
-      }
-    },
-    async handleAccept(scheduleId) {
-      try {
-        await axios.post(`/api/v1/petsitter/schedules/${scheduleId}/accept`)
-        await this.fetchSchedules(this.selectedDate)
+        const requestData = {
+          reservationId,
+          scheduleId,
+          petSitterId: this.$store.state.userInfo.id
+        }
+        await axios.patch('/api/v1/reservations/approve', requestData)
+        console.log('예약 수락 성공')
+        this.fetchSchedules()
       } catch (error) {
         console.error('예약 수락 실패:', error)
       }
     },
-    async handleReject(scheduleId) {
+    async rejectReservation(reservationId, scheduleId) {
       try {
-        await axios.post(`/api/v1/petsitter/schedules/${scheduleId}/reject`)
-        await this.fetchSchedules(this.selectedDate)
+        const requestData = {
+          reservationId,
+          scheduleId,
+          petSitterId: this.$store.state.userInfo.id
+        }
+        await axios.patch('/api/v1/reservations/reject', requestData)
+        console.log('예약 거절 성공')
+        this.fetchSchedules()
       } catch (error) {
         console.error('예약 거절 실패:', error)
       }
     },
     async handleAddSchedule() {
       try {
-        await axios.post('/api/v1/petsitter/schedules', this.newSchedule)
+        const requestData = {
+          petSitterId: this.petSitterId,
+          date: this.newSchedule.date,
+          startTime: this.newSchedule.startTime,
+          endTime: this.newSchedule.endTime,
+          timeFee: this.newSchedule.fee
+        }
+
+        const response = await axios.post('/api/v1/schedule', requestData)
+        console.log('일정 등록 성공:', response.data)
         this.showAddScheduleForm = false
-        await this.fetchSchedules(this.selectedDate)
+        await this.fetchSchedules()
       } catch (error) {
         console.error('일정 등록 실패:', error)
       }
     },
     showReservationDetail(reservation) {
       this.selectedReservation = reservation;
+    },
+    getStatusKorean(status) {
+      const statusMap = {
+        REQUEST: '요청',
+        APPROVE: '승인',
+        PAID: '결제 완료',
+        REJECT: '거절',
+        CANCEL: '취소'
+      }
+      return statusMap[status] || '알 수 없음'
+    },
+    getStatusClass(status) {
+      return {
+        REQUEST: 'status-request',
+        APPROVE: 'status-approve',
+        PAID: 'status-paid',
+        REJECT: 'status-reject',
+        CANCEL: 'status-cancel'
+      }[status] || ''
+    },
+    editSchedule(schedule) {
+      // 일정 변경 로직 추가
+      console.log('일정 변경:', schedule)
+    },
+    async deleteSchedule(scheduleId) {
+      try {
+        await axios.delete(`/api/v1/schedule/${scheduleId}`)
+        console.log('일정 삭제 성공')
+        await this.fetchSchedules()
+      } catch (error) {
+        console.error('일정 삭제 실패:', error)
+      }
     }
   },
   mounted() {
-    this.fetchSchedules(this.selectedDate)
+    this.fetchSchedules()
   }
 }
 </script>
@@ -464,75 +381,103 @@ export default {
   overflow-y: auto;
 }
 
-.schedule-list {
-  margin-top: 1rem;
-}
-
-.no-schedule {
-  text-align: center;
-  color: #666;
-  padding: 2rem;
-}
-
 .schedule-item {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid #eee;
-  gap: 1rem;
-  min-height: 60px;
+  margin-bottom: 2rem;
 }
 
 .time {
-  flex: 1;
   font-weight: 500;
-}
-
-.status-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.action-btn {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.9rem;
-  min-width: 80px;
-}
-
-.action-btn:disabled {
-  cursor: default;
-}
-
-.action-btn.accept {
-  background-color: #28a745;
-  color: white;
-}
-
-.action-btn.reject {
-  background-color: #dc3545;
-  color: white;
-}
-
-.action-btn.예약요청 {
-  background-color: #ffd700;
-  cursor: default;
-}
-
-.action-btn.예약확정 {
-  background-color: #28a745;
-  color: white;
-  cursor: default;
 }
 
 .schedule-actions {
-  margin-top: 2rem;
   display: flex;
-  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.edit-btn, .delete-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.edit-btn:hover, .delete-btn:hover {
+  background-color: #0056b3;
+}
+
+.reservations {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.reservation-card {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reservation-info {
+  display: flex;
+  gap: 1rem;
+}
+
+.status {
+  font-weight: 500;
+}
+
+.status-request {
+  color: #ffc107;
+}
+
+.status-approve {
+  color: #28a745;
+}
+
+.status-paid {
+  color: #17a2b8;
+}
+
+.status-reject {
+  color: #dc3545;
+}
+
+.status-cancel {
+  color: #6c757d;
+}
+
+.reservation-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.accept-btn, .reject-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.accept-btn:hover {
+  background-color: #218838;
+}
+
+.reject-btn {
+  background-color: #dc3545;
+}
+
+.reject-btn:hover {
+  background-color: #c82333;
 }
 
 .add-schedule-btn {

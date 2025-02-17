@@ -1,119 +1,186 @@
 <template>
   <div class="find-sitter-container">
-    <div class="filter-section">
-      <div class="filter-group">
-        <!-- 위치 필터 -->
-        <div class="filter-item">
-          <button class="filter-btn" :class="{ active: activeFilter === 'location' }" @click="toggleFilter('location')">
-            위치
-          </button>
-          <div v-if="activeFilter === 'location'" class="filter-dropdown">
-            <div class="search-box">
-              <input 
-                type="text" 
-                v-model="filters.location"
-                placeholder="주소를 입력하세요"
-                class="location-input"
-              >
-              <button class="search-address-btn">주소 검색</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 일자 필터 -->
-        <div class="filter-item">
-          <button class="filter-btn" :class="{ active: activeFilter === 'date' }" @click="toggleFilter('date')">
-            일자
-          </button>
-          <div v-if="activeFilter === 'date'" class="filter-dropdown calendar">
-            <DatePicker
-              v-model="filters.date"
-              :min-date="new Date()"
-              :masks="masks"
-              :attributes="attributes"
-              is-expanded
-              locale="ko"
-            />
-          </div>
-        </div>
-
-        <!-- 시작 시간 필터 -->
-        <div class="filter-item">
-          <button class="filter-btn" :class="{ active: activeFilter === 'startTime' }" @click="toggleFilter('startTime')">
-            시작 시간
-          </button>
-          <div v-if="activeFilter === 'startTime'" class="filter-dropdown">
-            <select v-model="filters.startTime" class="time-select">
-              <option v-for="hour in 24" :key="`start-${hour}`" :value="hour-1">
-                {{ String(hour-1).padStart(2, '0') }}:00
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <!-- 종료 시간 필터 -->
-        <div class="filter-item">
-          <button class="filter-btn" :class="{ active: activeFilter === 'endTime' }" @click="toggleFilter('endTime')">
-            종료 시간
-          </button>
-          <div v-if="activeFilter === 'endTime'" class="filter-dropdown">
-            <select v-model="filters.endTime" class="time-select">
-              <option v-for="hour in 24" :key="`end-${hour}`" :value="hour-1">
-                {{ String(hour-1).padStart(2, '0') }}:00
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <!-- 서비스 종류 필터 -->
-        <div class="filter-item">
-          <button class="filter-btn" :class="{ active: activeFilter === 'services' }" @click="toggleFilter('services')">
-            서비스 종류
-          </button>
-          <div v-if="activeFilter === 'services'" class="filter-dropdown">
-            <div class="service-options">
-              <label class="service-option">
-                <input 
-                  type="checkbox" 
-                  v-model="filters.services" 
-                  value="산책"
-                > 산책
-              </label>
-              <label class="service-option">
-                <input 
-                  type="checkbox" 
-                  v-model="filters.services" 
-                  value="방문돌봄"
-                > 방문 돌봄
-              </label>
-              <label class="service-option">
-                <input 
-                  type="checkbox" 
-                  v-model="filters.services" 
-                  value="위탁돌봄"
-                > 위탁 돌봄
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <button class="search-btn" @click="handleSearch">검색</button>
+    <h1>시터 찾기</h1>
+    
+    <!-- 내 예약 목록 섹션 -->
+    <div class="my-reservations-section">
+      <h2>내 요청 목록</h2>
+      <div class="reservations-table-container">
+        <table class="reservations-table">
+          <thead>
+            <tr>
+              <th>날짜</th>
+              <th>시작 시간</th>
+              <th>종료 시간</th>
+              <th>상태</th>
+              <th>작업</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="reservation in myReservations" :key="reservation.id">
+              <td>{{ formatDate(reservation.schedule.date) }}</td>
+              <td>{{ formatTime(reservation.startTime) }}</td>
+              <td>{{ formatTime(reservation.endTime) }}</td>
+              <td>
+                <span :class="['status-badge', getStatusClass(reservation.status)]">
+                  {{ getStatusText(reservation.status) }}
+                </span>
+              </td>
+              <td class="action-buttons">
+                <template v-if="['REQUEST', 'APPROVE'].includes(reservation.status)">
+                  <button 
+                    @click="cancelReservation(reservation.id)" 
+                    class="cancel-action-button"
+                  >
+                    취소
+                  </button>
+                </template>
+                <template v-if="reservation.status === 'APPROVE'">
+                  <button 
+                    @click="processPayment(reservation)" 
+                    class="payment-button"
+                  >
+                    결제
+                  </button>
+                </template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <div class="services-section">
-      <div class="service-list">
-        <div v-for="service in services" :key="service.id" class="service-card">
-          <div class="service-info">
-            <h3>{{ service.title }}</h3>
+    <!-- 검색 필터 섹션 -->
+    <div class="search-section">
+      <div class="search-filters">
+        <div class="filter-item">
+          <label for="location">위치</label>
+          <input id="location" type="text" v-model="filters.location" placeholder="위치 입력" />
+        </div>
+        <div class="filter-item">
+          <label>일자</label>
+          <input type="date" v-model="filters.date" />
+        </div>
+        <div class="filter-item">
+          <label>시작 시간</label>
+          <select v-model="filters.startTime" class="time-select">
+            <option v-for="hour in 24" :key="`start-${hour-1}`" :value="hour-1">
+              {{ formatTime(hour-1) }}
+            </option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>종료 시간</label>
+          <select v-model="filters.endTime" class="time-select">
+            <option v-for="hour in 24" :key="`end-${hour-1}`" :value="hour-1">
+              {{ formatTime(hour-1) }}
+            </option>
+          </select>
+        </div>
+        <button @click="searchSitters" class="search-button">검색</button>
+      </div>
+    </div>
+
+    <!-- 검색 결과 섹션 -->
+    <div class="search-results-container">
+      <div v-if="searchResults.length > 0" class="search-results">
+        <div v-for="schedule in searchResults" :key="schedule.id" class="sitter-card" @click="selectSchedule(schedule)">
+          <div class="sitter-info">
+            <div class="card-header">
+              <h3>{{ schedule.sitter.memberResponse.name }}의 서비스</h3>
+              <button class="request-button" @click.stop="requestService(schedule)">요청</button>
+            </div>
             <div class="service-details">
-              <p>{{ service.description }}</p>
-              <div class="service-meta">
-                <span class="location">{{ service.location }}</span>
-                <span class="price">{{ formatPrice(service.price) }}원</span>
+              <div class="details-grid">
+                <div class="detail-row">
+                  <span class="detail-label">위치:</span>
+                  <span>{{ schedule.sitter.location }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">시작 시간:</span>
+                  <span>{{ formatTime(schedule.startTime) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">종료 시간:</span>
+                  <span>{{ formatTime(schedule.endTime) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">시간당 요금:</span>
+                  <span>{{ formatPrice(schedule.timeFee) }}원</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">돌봄 가능:</span>
+                  <span>{{ schedule.sitter.species.map(s => s.name).join(', ') }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">제공 서비스:</span>
+                  <span>{{ schedule.sitter.services.map(s => s.name).join(', ') }}</span>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      <div v-else-if="searched" class="no-results">
+        검색 결과가 없습니다.
+      </div>
+    </div>
+
+    <!-- 예약 요청 모달 -->
+    <div v-if="isRequestModalOpen" class="modal-overlay">
+      <div class="request-modal">
+        <h2>예약 요청</h2>
+        <div class="form-group">
+          <label>시작 시간</label>
+          <select v-model="reservationForm.startTime" class="time-select">
+            <option v-for="hour in 24" :key="`start-${hour-1}`" :value="hour-1">
+              {{ formatTime(hour-1) }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>종료 시간</label>
+          <select v-model="reservationForm.endTime" class="time-select">
+            <option v-for="hour in 24" :key="`end-${hour-1}`" :value="hour-1">
+              {{ formatTime(hour-1) }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>반려동물 선택</label>
+          <div class="pets-scroll-container">
+            <div class="pet-grid">
+              <div 
+                v-for="pet in myPets" 
+                :key="pet.id" 
+                class="pet-card"
+                :class="{ 'selected': reservationForm.petList.includes(pet.id) }"
+                @click="togglePetSelection(pet.id)"
+              >
+                <div class="pet-card-content">
+                  <div v-if="pet.photo" class="pet-photo">
+                    <img :src="pet.photo" :alt="pet.name">
+                  </div>
+                  <div v-else class="pet-photo default">
+                    <span>🐾</span>
+                  </div>
+                  <span class="pet-name">{{ pet.name }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group description-group">
+          <label>요청 설명</label>
+          <textarea 
+            v-model="reservationForm.description" 
+            rows="4" 
+            placeholder="특이사항이나 요청사항을 입력해주세요."
+          ></textarea>
+        </div>
+        <div class="modal-buttons">
+          <button @click="submitReservation" class="submit-button">예약 요청</button>
+          <button @click="closeRequestModal" class="cancel-button">취소</button>
         </div>
       </div>
     </div>
@@ -121,112 +188,179 @@
 </template>
 
 <script>
-import { DatePicker } from 'v-calendar'
+import axios from 'axios';
 
 export default {
   name: 'FindSitter',
-  components: {
-    DatePicker
-  },
   data() {
     return {
-      activeFilter: '',
       filters: {
         location: '',
-        date: new Date(),
-        startTime: 9,
-        endTime: 18,
-        services: []
+        date: '',
+        startTime: 0,
+        endTime: 23
       },
-      services: [
-        {
-          id: 1,
-          title: '강아지 산책 전문 펫시터',
-          description: '반려동물과 함께하는 즐거운 산책 시간을 제공합니다.',
-          location: '서울시 강남구',
-          price: 15000
-        },
-        {
-          id: 2,
-          title: '고양이 방문 돌봄',
-          description: '편안한 우리 집에서 안전하게 돌봐드립니다.',
-          location: '서울시 서초구',
-          price: 20000
-        },
-        {
-          id: 3,
-          title: '24시간 위탁 돌봄',
-          description: '넓은 공간에서 자유롭게 지내실 수 있습니다.',
-          location: '서울시 송파구',
-          price: 35000
-        },
-        {
-          id: 4,
-          title: '노견 전문 펫시터',
-          description: '노령견의 특성을 고려한 맞춤 돌봄 서비스를 제공합니다.',
-          location: '서울시 강동구',
-          price: 25000
-        },
-        {
-          id: 5,
-          title: '장기 위탁 전문',
-          description: '장기 여행이나 출장시 안심하고 맡기실 수 있습니다.',
-          location: '서울시 마포구',
-          price: 30000
-        },
-        {
-          id: 6,
-          title: '퍼피 전문 펫시터',
-          description: '활발한 강아지를 위한 맞춤 케어 서비스입니다.',
-          location: '서울시 영등포구',
-          price: 22000
-        },
-        {
-          id: 7,
-          title: '산책 & 놀이 전문',
-          description: '매일 다른 코스로 즐거운 산책을 제공합니다.',
-          location: '서울시 용산구',
-          price: 18000
-        },
-        {
-          id: 8,
-          title: '고양이 전문 펫시터',
-          description: '고양이의 특성을 이해하는 전문 돌봄 서비스입니다.',
-          location: '서울시 성동구',
-          price: 23000
-        }
-      ],
-      masks: {
-        input: 'YYYY-MM-DD'
-      },
-      attributes: [
-        {
-          key: 'today',
-          highlight: true,
-          dates: new Date()
-        }
-      ]
+      searchResults: [],
+      searched: false,
+      myReservations: [], // 내 예약 목록
+      isRequestModalOpen: false,
+      selectedSchedule: null,
+      myPets: [],
+      reservationForm: {
+        startTime: 0,
+        endTime: 0,
+        petList: [],
+        description: '',
+        date: '',
+        memberId: 1, // TODO: 실제 로그인된 사용자 ID로 변경
+        scheduleId: null
+      }
     }
+  },
+  async created() {
+    await this.fetchMyReservations();
   },
   methods: {
-    toggleFilter(filterName) {
-      this.activeFilter = this.activeFilter === filterName ? '' : filterName
+    async searchSitters() {
+      try {
+        const response = await axios.post('/api/v1/schedule/list', this.filters);
+        this.searchResults = response.data;
+        this.searched = true;
+      } catch (error) {
+        console.error('시터 검색 실패:', error);
+      }
     },
-    handleSearch() {
-      // 검색 로직 구현
-      console.log('검색 필터:', this.filters)
+    selectSchedule(schedule) {
+      // 스케줄 선택 시 처리할 로직
+      console.log('Selected schedule:', schedule);
+    },
+    formatTime(hour) {
+      return `${String(hour).padStart(2, '0')}:00`;
     },
     formatPrice(price) {
-      return price.toLocaleString()
-    }
-  },
-  mounted() {
-    // 외부 클릭시 필터 닫기
-    document.addEventListener('click', (e) => {
-      if (!this.$el.contains(e.target)) {
-        this.activeFilter = ''
+      return price.toLocaleString();
+    },
+    async requestService(schedule) {
+      this.selectedSchedule = schedule;
+      this.reservationForm.scheduleId = schedule.id;
+      this.reservationForm.date = this.filters.date;
+      await this.fetchMyPets();
+      this.isRequestModalOpen = true;
+    },
+    async fetchMyReservations() {
+      try {
+        const memberId = 1; // TODO: 실제 로그인된 사용자 ID로 변경
+        const response = await axios.get(`/api/v1/reservations/list/${memberId}`);
+        this.myReservations = response.data;
+      } catch (error) {
+        console.error('예약 목록 가져오기 실패:', error);
       }
-    })
+    },
+    formatDate(date) {
+      return new Date(date).toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    },
+    getStatusText(status) {
+      const statusMap = {
+        REQUEST: '요청',
+        APPROVE: '승인',
+        PAID: '결제 완료',
+        REJECT: '거절',
+        CANCEL: '취소'
+      };
+      return statusMap[status] || status;
+    },
+    getStatusClass(status) {
+      const statusClassMap = {
+        REQUEST: 'status-request',
+        APPROVE: 'status-approve',
+        PAID: 'status-paid',
+        REJECT: 'status-reject',
+        CANCEL: 'status-cancel'
+      };
+      return statusClassMap[status] || '';
+    },
+    async fetchMyPets() {
+      try {
+        const memberId = 1; // TODO: 실제 로그인된 사용자 ID로 변경
+        const response = await axios.get(`/api/v1/pets/${memberId}`);
+        this.myPets = response.data;
+      } catch (error) {
+        console.error('반려동물 목록 가져오기 실패:', error);
+      }
+    },
+    togglePetSelection(petId) {
+      const index = this.reservationForm.petList.indexOf(petId);
+      if (index === -1) {
+        this.reservationForm.petList.push(petId);
+      } else {
+        this.reservationForm.petList.splice(index, 1);
+      }
+    },
+    closeRequestModal() {
+      this.isRequestModalOpen = false;
+      this.resetReservationForm();
+    },
+    resetReservationForm() {
+      this.reservationForm = {
+        startTime: 0,
+        endTime: 0,
+        petList: [],
+        description: '',
+        date: '',
+        memberId: 1,
+        scheduleId: null
+      };
+    },
+    async submitReservation() {
+      try {
+        await axios.post('/api/v1/reservations', this.reservationForm);
+        this.closeRequestModal();
+        // 예약 성공 후 예약 목록 새로고침
+        await this.fetchMyReservations();
+      } catch (error) {
+        console.error('예약 요청 실패:', error);
+      }
+    },
+    async cancelReservation(reservationId) {
+      try {
+        const cancelRequest = {
+          userId: 1, // TODO: 실제 로그인된 사용자 ID로 변경
+          reservationId: reservationId
+        };
+        
+        await axios.patch('/api/v1/reservations/cancel', cancelRequest);
+        await this.fetchMyReservations(); // 목록 새로고침
+      } catch (error) {
+        console.error('예약 취소 실패:', error);
+      }
+    },
+    async processPayment(reservation) {
+      try {
+        // 결제 금액 계산
+        const price = reservation.schedule.timeFee * 
+          (reservation.endTime - reservation.startTime);
+        
+        // 결제 처리
+        const response = await this.$payment(price);
+        
+        // 결제 성공 시 서버에 결제 완료 상태 업데이트
+        if (response.success) {
+          const paidRequest = {
+            userId: this.$store.state.userInfo.id,  // 로그인된 사용자 ID
+            reservationId: reservation.id
+          };
+          
+          await axios.patch('/api/v1/reservations/paid', paidRequest);
+          await this.fetchMyReservations(); // 목록 새로고침
+        }
+      } catch (error) {
+        console.error('결제 처리 실패:', error);
+      }
+    }
   }
 }
 </script>
@@ -238,220 +372,432 @@ export default {
   margin: 0 auto;
 }
 
-.filter-section {
+.search-section {
   background: white;
-  padding: 1rem;
-  border-radius: 12px;
+  padding: 2rem;
+  border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
 }
 
-.filter-group {
+.search-filters {
   display: flex;
   gap: 1rem;
-  align-items: center;
+  align-items: flex-end;
   flex-wrap: wrap;
 }
 
-.filter-btn {
-  padding: 0.75rem 1.5rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: white;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-}
-
-.filter-btn:hover {
-  border-color: #007bff;
-  color: #007bff;
-}
-
-.filter-btn.active {
-  background: #007bff;
-  color: white;
-  border-color: #007bff;
-}
-
-.search-btn {
-  padding: 0.75rem 2rem;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  margin-left: auto;
-}
-
-.search-btn:hover {
-  background: #0056b3;
-}
-
-.services-section {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-  max-height: 600px;
-  overflow-y: auto;
-}
-
-.service-list {
+.filter-item {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
-.service-card {
+.filter-item label {
+  font-weight: bold;
+}
+
+.search-results-container {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.search-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+.sitter-card {
+  background: white;
   padding: 1.5rem;
-  border: 1px solid #eee;
   border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
   transition: all 0.3s ease;
+  min-width: 400px;
 }
 
-.service-card:hover {
+.sitter-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.service-info h3 {
-  margin: 0 0 1rem 0;
-  color: #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .service-details {
-  color: #666;
+  margin-top: 1rem;
 }
 
-.service-meta {
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem 1rem;
+}
+
+.card-header {
   display: flex;
   justify-content: space-between;
-  margin-top: 1rem;
-  color: #333;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.card-header h3 {
+  margin: 0;
+}
+
+.request-button {
+  padding: 0.5rem 1.5rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.request-button:hover {
+  background-color: #218838;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  padding: 0.3rem 0;
+}
+
+.detail-label {
+  font-weight: bold;
+  min-width: 100px;
+}
+
+.time-select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100px;
+  cursor: pointer;
+}
+
+.search-button {
+  padding: 0.5rem 2rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  height: fit-content;
+}
+
+.search-button:hover {
+  background-color: #0056b3;
+}
+
+.no-results {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.my-reservations-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.my-reservations-section h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.reservations-table-container {
+  overflow-x: auto;
+}
+
+.reservations-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.reservations-table th,
+.reservations-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.reservations-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+
+.reservations-table td {
+  vertical-align: middle;
+  height: 60px;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  height: 28px;
 }
 
-/* 스크롤바 스타일링 */
-.services-section::-webkit-scrollbar {
-  width: 8px;
+.status-request {
+  background-color: #ffd700;
+  color: #000;
 }
 
-.services-section::-webkit-scrollbar-track {
+.status-approve {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-paid {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.status-reject {
+  background-color: #dc3545;
+  color: white;
+}
+
+.status-cancel {
+  background-color: #6c757d;
+  color: white;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  min-height: 36px;
+}
+
+.cancel-action-button,
+.payment-button {
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cancel-action-button {
+  padding: 0.25rem 0.75rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s;
+}
+
+.cancel-action-button:hover {
+  background-color: #c82333;
+}
+
+.payment-button {
+  padding: 0.25rem 0.75rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s;
+}
+
+.payment-button:hover {
+  background-color: #0056b3;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.request-modal {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.pets-scroll-container {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.pet-grid {
+  display: inline-flex;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  min-width: min-content;
+}
+
+.pet-card {
+  flex: 0 0 100px;
+  aspect-ratio: 1;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.pet-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pet-card.selected {
+  border-color: #28a745;
+  background-color: #e8f5e9;
+}
+
+.pet-card-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+.pet-photo {
+  width: 60%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+}
+
+.pet-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pet-photo.default {
+  background-color: #e9ecef;
+  font-size: 1.5rem;
+}
+
+.pet-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: center;
+  word-break: break-word;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.submit-button {
+  padding: 0.5rem 1.5rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: #218838;
+}
+
+.cancel-button {
+  padding: 0.5rem 1.5rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-button:hover {
+  background-color: #5a6268;
+}
+
+.description-group {
+  margin-top: 2rem;
+}
+
+.description-group textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  resize: vertical;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.description-group textarea:focus {
+  outline: none;
+  border-color: #2196F3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.pets-scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.pets-scroll-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
 }
 
-.services-section::-webkit-scrollbar-thumb {
+.pets-scroll-container::-webkit-scrollbar-thumb {
   background: #888;
   border-radius: 4px;
 }
 
-.services-section::-webkit-scrollbar-thumb:hover {
-  background: #555;
+.pets-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }
-
-.filter-item {
-  position: relative;
-}
-
-.filter-dropdown {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 0;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-  z-index: 1000;
-  min-width: 200px;
-}
-
-.search-box {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.location-input {
-  flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.search-address-btn {
-  padding: 0.5rem 1rem;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.time-select {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.service-options {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.service-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
-.calendar {
-  padding: 1rem;
-  min-width: 300px;
-}
-
-/* v-calendar 커스텀 스타일 */
-:deep(.vc-container) {
-  border: none;
-}
-
-:deep(.vc-header) {
-  padding-top: 0.5rem;
-}
-
-:deep(.vc-weeks) {
-  padding: 0.5rem 0;
-}
-
-@media (max-width: 768px) {
-  .find-sitter-container {
-    padding: 1rem;
-  }
-
-  .filter-group {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-  }
-
-  .filter-btn {
-    white-space: nowrap;
-  }
-
-  .filter-dropdown {
-    position: fixed;
-    top: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    border-radius: 16px 16px 0 0;
-    padding: 1.5rem;
-  }
-}
-</style> 
+</style>

@@ -32,12 +32,12 @@
           </div>
         </div>
   
-        <div class="bottom-menu">
-          <router-link to="/my-pets" class="bottom-link">
-            <span class="link-text">내 펫 보기</span>
+        <div class="button-container">
+          <router-link to="/pets" class="nav-button">
+            <button class="pet-button">내 펫 보기</button>
           </router-link>
-          <router-link to="/pet-sitter" class="bottom-link">
-            <span class="link-text">펫시터</span>
+          <router-link to="/petsitter/info" class="nav-button">
+            <button class="petsitter-button">펫시터 정보</button>
           </router-link>
         </div>
       </div>
@@ -120,34 +120,42 @@
     font-weight: 500;
   }
   
-  .bottom-menu {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  .button-container {
+    display: flex;
     gap: 1rem;
     margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid #e0e0e0;
+    justify-content: center;
   }
   
-  .bottom-link {
-    text-align: center;
-    padding: 1rem;
-    background-color: #f8f9fa;
-    border-radius: 8px;
+  .nav-button {
     text-decoration: none;
-    color: #333;
-    font-weight: 500;
+  }
+  
+  .pet-button, .petsitter-button {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
     transition: all 0.3s ease;
   }
   
-  .bottom-link:hover {
-    background-color: #007bff;
+  .pet-button {
+    background-color: #4CAF50;
     color: white;
-    transform: translateY(-2px);
   }
   
-  .link-text {
-    font-size: 1.1rem;
+  .pet-button:hover {
+    background-color: #45a049;
+  }
+  
+  .petsitter-button {
+    background-color: #2196F3;
+    color: white;
+  }
+  
+  .petsitter-button:hover {
+    background-color: #1976D2;
   }
   
   @media (max-width: 768px) {

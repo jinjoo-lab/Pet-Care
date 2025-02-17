@@ -8,8 +8,12 @@ import com.example.petcare.module.reservation.dto.response.SimpleReservationResp
 import com.example.petcare.module.reservation.entity.Reservation;
 import com.example.petcare.module.schedule.dto.response.ScheduleResponse;
 import com.example.petcare.module.schedule.dto.request.SaveScheduleRequest;
+import com.example.petcare.module.schedule.dto.response.SimpleScheduleResponse;
 import com.example.petcare.module.schedule.entity.Schedule;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class ScheduleMapper {
@@ -30,7 +34,7 @@ public class ScheduleMapper {
     public Schedule saveScheduleRequestToEntity(Petsitter sitter, SaveScheduleRequest request) {
         return new Schedule(
                 sitter,
-                request.getDate(),
+                convertDate(request.getDate()),
                 request.getStartTime(),
                 request.getEndTime(),
                 request.getTimeFee()
@@ -50,6 +54,17 @@ public class ScheduleMapper {
         );
     }
 
+    public SimpleScheduleResponse scheduleToSimpleReservationResponse(Schedule schedule) {
+        return new SimpleScheduleResponse(
+                schedule.getId(),
+                petsitterMapper.petSitterToResponse(schedule.getPetSitter()),
+                schedule.getDate(),
+                schedule.getStartTime(),
+                schedule.getEndTime(),
+                schedule.getTimeFee()
+        );
+    }
+
     public SimpleReservationResponse reservationToSimpleReservationResponse(Reservation reservation) {
         return new SimpleReservationResponse(
                 reservation.getId(),
@@ -57,7 +72,14 @@ public class ScheduleMapper {
                 memberMapper.memberToMemberResponse(reservation.getMember()),
                 reservation.getPetReservations().stream().map(
                         pet -> petMapper.petToPetResponse(pet.getPet())
-                ).toList()
+                ).toList(),
+                reservation.getStartTime(),
+                reservation.getEndTime()
         );
+    }
+
+    private LocalDate convertDate(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return LocalDate.parse(date, formatter);
     }
 }

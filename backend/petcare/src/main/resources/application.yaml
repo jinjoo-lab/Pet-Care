@@ -1,4 +1,5 @@
 spring:
+  timezone: Asia/Seoul
   datasource:
     url: jdbc:postgresql://localhost:5432/pet_db
     username: joowon
@@ -8,6 +9,7 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: create
+
 
 server:
   servlet:

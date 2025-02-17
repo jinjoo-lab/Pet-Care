@@ -1,7 +1,10 @@
 package com.example.petcare.module.schedule.controller;
 
+import com.example.petcare.module.schedule.dto.request.FindScheduleRequest;
 import com.example.petcare.module.schedule.dto.request.SaveScheduleRequest;
+import com.example.petcare.module.schedule.dto.request.UpdateScheduleRequest;
 import com.example.petcare.module.schedule.dto.response.ScheduleResponse;
+import com.example.petcare.module.schedule.dto.response.SimpleScheduleResponse;
 import com.example.petcare.module.schedule.service.ScheduleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,5 +38,16 @@ public class ScheduleController {
     @GetMapping("/list/{id}/{date}")
     public ResponseEntity<List<ScheduleResponse>> findScheduleBySitterId(@PathVariable("id") Long petSitterId, @PathVariable("date") String date) {
         return ResponseEntity.ok(scheduleService.findSchedules(petSitterId,date));
+    }
+
+    @PostMapping("/list")
+    public ResponseEntity<List<SimpleScheduleResponse>> findSchedules(@RequestBody FindScheduleRequest request) {
+        System.out.println("SKRR");
+        return ResponseEntity.ok(scheduleService.findAllSchedules(request));
+    }
+
+    @PutMapping
+    public ResponseEntity<ScheduleResponse> updateSchedule(@RequestBody UpdateScheduleRequest request) {
+        return ResponseEntity.ok(scheduleService.updateSchedule(request));
     }
 }

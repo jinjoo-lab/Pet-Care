@@ -2,8 +2,11 @@ package com.example.petcare.module.schedule.service;
 
 import com.example.petcare.module.petsitter.entity.Petsitter;
 import com.example.petcare.module.petsitter.service.PetsitterService;
+import com.example.petcare.module.schedule.dto.request.FindScheduleRequest;
+import com.example.petcare.module.schedule.dto.request.UpdateScheduleRequest;
 import com.example.petcare.module.schedule.dto.response.ScheduleResponse;
 import com.example.petcare.module.schedule.dto.request.SaveScheduleRequest;
+import com.example.petcare.module.schedule.dto.response.SimpleScheduleResponse;
 import com.example.petcare.module.schedule.entity.Schedule;
 import com.example.petcare.module.schedule.mapper.ScheduleMapper;
 import com.example.petcare.module.schedule.repository.ScheduleRepository;
@@ -33,7 +36,9 @@ public class ScheduleService {
     public ScheduleResponse saveSchedule(SaveScheduleRequest request) {
         Petsitter petSitter = petsitterService.getPetSitterEntityById(request.getPetSitterId());
 
-        Schedule schedule = scheduleRepository.save(
+        Schedule schedule = scheduleMapper.saveScheduleRequestToEntity(petSitter, request);
+
+        scheduleRepository.save(
                 scheduleMapper.saveScheduleRequestToEntity(
                         petSitter, request
                 )
@@ -79,5 +84,26 @@ public class ScheduleService {
     private LocalDate convertDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return LocalDate.parse(date, formatter);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SimpleScheduleResponse> findAllSchedules(FindScheduleRequest request) {
+
+        return scheduleRepository.findScheduleByRequest(
+                request.getLocation(),
+                convertDate(request.getDate()),
+                request.getStartTime(),
+                request.getEndTime()
+        ).stream().map(
+                scheduleMapper::scheduleToSimpleReservationResponse
+        ).toList();
+    }
+
+    @Transactional
+    public ScheduleResponse updateSchedule(UpdateScheduleRequest request) {
+        Schedule schedule = getScheduleById(request.getId());
+        schedule.updateSchedule(request.getStartTime(), request.getEndTime());
+
+        return scheduleMapper.scheduleToScheduleResponse(schedule);
     }
 }

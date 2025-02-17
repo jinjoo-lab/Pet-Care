@@ -2,10 +2,15 @@ package com.example.petcare.module.petsitter.controller;
 
 
 import com.example.petcare.module.member.dto.request.SignUpRequest;
+import com.example.petcare.module.member.dto.response.MemberResponse;
 import com.example.petcare.module.member.service.MemberService;
+import com.example.petcare.module.pet.entity.Pet;
+import com.example.petcare.module.pet.entity.PetSize;
+import com.example.petcare.module.pet.entity.PetType;
 import com.example.petcare.module.petsitter.dto.request.SitterSaveRequest;
 import com.example.petcare.module.petsitter.dto.response.SitterResponse;
 import com.example.petcare.module.petsitter.service.PetsitterService;
+import com.example.petcare.module.schedule.entity.Schedule;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +45,7 @@ public class PetsitterController {
 
     @GetMapping("/test")
     public void test() {
-        memberService.signUp(new SignUpRequest(
+        MemberResponse mr = memberService.signUp(new SignUpRequest(
                 "drasgon@naver.com",
                 "1234",
                 "jinjoowon",
@@ -60,5 +65,6 @@ public class PetsitterController {
                         15000
                 )
         );
+
     }
 }
