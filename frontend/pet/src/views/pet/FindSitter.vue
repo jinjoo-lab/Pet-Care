@@ -14,9 +14,11 @@
                 v-model="filters.location"
                 placeholder="주소를 입력하세요"
                 class="location-input"
+                required
               >
-              <button class="search-address-btn">주소 검색</button>
+              <button class="search-address-btn" @click="handleSearch">주소 검색</button>
             </div>
+            <span v-if="!filters.location" class="error-message">위치를 입력하세요.</span>
           </div>
         </div>
 
@@ -65,38 +67,6 @@
           </div>
         </div>
 
-        <!-- 서비스 종류 필터 -->
-        <div class="filter-item">
-          <button class="filter-btn" :class="{ active: activeFilter === 'services' }" @click="toggleFilter('services')">
-            서비스 종류
-          </button>
-          <div v-if="activeFilter === 'services'" class="filter-dropdown">
-            <div class="service-options">
-              <label class="service-option">
-                <input 
-                  type="checkbox" 
-                  v-model="filters.services" 
-                  value="산책"
-                > 산책
-              </label>
-              <label class="service-option">
-                <input 
-                  type="checkbox" 
-                  v-model="filters.services" 
-                  value="방문돌봄"
-                > 방문 돌봄
-              </label>
-              <label class="service-option">
-                <input 
-                  type="checkbox" 
-                  v-model="filters.services" 
-                  value="위탁돌봄"
-                > 위탁 돌봄
-              </label>
-            </div>
-          </div>
-        </div>
-
         <button class="search-btn" @click="handleSearch">검색</button>
       </div>
     </div>
@@ -105,13 +75,21 @@
       <div class="service-list">
         <div v-for="service in services" :key="service.id" class="service-card">
           <div class="service-info">
-            <h3>{{ service.title }}</h3>
+            <h3>{{ service.sitter.memberResponse.name }}의 서비스</h3>
             <div class="service-details">
-              <p>{{ service.description }}</p>
-              <div class="service-meta">
-                <span class="location">{{ service.location }}</span>
-                <span class="price">{{ formatPrice(service.price) }}원</span>
-              </div>
+              <p>시작 시간: {{ formatTime(service.startTime) }}</p>
+              <p>종료 시간: {{ formatTime(service.endTime) }}</p>
+              <p>시간당 요금: {{ formatPrice(service.timeFee) }}원</p>
+              <p>반려동물 종류: 
+                <span v-for="species in service.sitter.species" :key="species.id">
+                  {{ species.name }}<span v-if="!$last">, </span>
+                </span>
+              </p>
+              <p>제공 서비스: 
+                <span v-for="care in service.sitter.services" :key="care.serviceId">
+                  {{ care.name }}<span v-if="!$last">, </span>
+                </span>
+              </p>
             </div>
           </div>
         </div>
@@ -122,6 +100,8 @@
 
 <script>
 import { DatePicker } from 'v-calendar'
+import axios from 'axios'
+import { format, zonedTimeToUtc } from 'date-fns-tz'
 
 export default {
   name: 'FindSitter',
@@ -135,67 +115,9 @@ export default {
         location: '',
         date: new Date(),
         startTime: 9,
-        endTime: 18,
-        services: []
+        endTime: 18
       },
-      services: [
-        {
-          id: 1,
-          title: '강아지 산책 전문 펫시터',
-          description: '반려동물과 함께하는 즐거운 산책 시간을 제공합니다.',
-          location: '서울시 강남구',
-          price: 15000
-        },
-        {
-          id: 2,
-          title: '고양이 방문 돌봄',
-          description: '편안한 우리 집에서 안전하게 돌봐드립니다.',
-          location: '서울시 서초구',
-          price: 20000
-        },
-        {
-          id: 3,
-          title: '24시간 위탁 돌봄',
-          description: '넓은 공간에서 자유롭게 지내실 수 있습니다.',
-          location: '서울시 송파구',
-          price: 35000
-        },
-        {
-          id: 4,
-          title: '노견 전문 펫시터',
-          description: '노령견의 특성을 고려한 맞춤 돌봄 서비스를 제공합니다.',
-          location: '서울시 강동구',
-          price: 25000
-        },
-        {
-          id: 5,
-          title: '장기 위탁 전문',
-          description: '장기 여행이나 출장시 안심하고 맡기실 수 있습니다.',
-          location: '서울시 마포구',
-          price: 30000
-        },
-        {
-          id: 6,
-          title: '퍼피 전문 펫시터',
-          description: '활발한 강아지를 위한 맞춤 케어 서비스입니다.',
-          location: '서울시 영등포구',
-          price: 22000
-        },
-        {
-          id: 7,
-          title: '산책 & 놀이 전문',
-          description: '매일 다른 코스로 즐거운 산책을 제공합니다.',
-          location: '서울시 용산구',
-          price: 18000
-        },
-        {
-          id: 8,
-          title: '고양이 전문 펫시터',
-          description: '고양이의 특성을 이해하는 전문 돌봄 서비스입니다.',
-          location: '서울시 성동구',
-          price: 23000
-        }
-      ],
+      services: [],
       masks: {
         input: 'YYYY-MM-DD'
       },
@@ -212,12 +134,46 @@ export default {
     toggleFilter(filterName) {
       this.activeFilter = this.activeFilter === filterName ? '' : filterName
     },
-    handleSearch() {
-      // 검색 로직 구현
-      console.log('검색 필터:', this.filters)
+    async handleSearch() {
+      if (!this.filters.location) {
+        alert('위치를 입력하세요.');
+        return;
+      }
+
+      if (!this.filters.date) {
+        alert('일자를 선택하세요.');
+        return;
+      }
+
+      const selectedDate = zonedTimeToUtc(this.filters.date, 'Asia/Seoul');
+      const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+
+      const requestData = {
+        location: this.filters.location,
+        date: formattedDate,
+        startTime: this.filters.startTime,
+        endTime: this.filters.endTime
+      }
+
+      try {
+        const response = await axios.post('/api/v1/schedule/list', requestData);
+        console.log('응답 데이터:', response.data); // 응답 데이터 확인
+
+        if (!response.data || response.data.length === 0) {
+          console.error('검색 결과가 없습니다.');
+          return;
+        }
+
+        this.services = response.data; // 검색 결과를 services에 저장
+      } catch (error) {
+        console.error('검색 실패:', error);
+      }
     },
     formatPrice(price) {
       return price.toLocaleString()
+    },
+    formatTime(hour) {
+      return `${String(hour).padStart(2, '0')}:00`
     }
   },
   mounted() {
@@ -453,5 +409,11 @@ export default {
     border-radius: 16px 16px 0 0;
     padding: 1.5rem;
   }
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
 }
 </style> 

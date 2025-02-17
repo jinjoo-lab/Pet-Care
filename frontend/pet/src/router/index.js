@@ -11,6 +11,7 @@ import PetsitterSchedule from '@/views/petsitter/Schedule.vue'
 import PetList from '@/views/pet/PetList.vue'
 import FindSitter from '@/views/pet/FindSitter.vue'
 import PetsitterInfo from '@/views/petsitter/Info.vue'
+import CodeMgtPage from '@/views/pet/CodeMgtPage.vue'
 import store from '@/store'
 import PaymentTest from '@/views/PaymentTest.vue'
 const routes = [
@@ -78,6 +79,11 @@ const routes = [
     name: 'PetsitterInfo',
     component: PetsitterInfo,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/code-management',
+    name: 'CodeMgtPage',
+    component: CodeMgtPage,
   },
   {
     path: '/payment-test',
