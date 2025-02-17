@@ -40,6 +40,21 @@
     </header>
   </template>
   
+  <script>
+  import axios from 'axios'
+
+  export default {
+    name: 'Home',
+    async created() {
+      try {
+        await axios.get('/api/v1/petsitter/init');
+      } catch (error) {
+        console.error('펫시터 초기화 실패:', error);
+      }
+    }
+  }
+  </script>
+  
   <style scoped>
   .header {
     padding: 4rem 2rem;

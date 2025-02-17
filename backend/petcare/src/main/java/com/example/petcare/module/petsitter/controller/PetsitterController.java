@@ -8,6 +8,7 @@ import com.example.petcare.module.pet.entity.Pet;
 import com.example.petcare.module.pet.entity.PetSize;
 import com.example.petcare.module.pet.entity.PetType;
 import com.example.petcare.module.petsitter.dto.request.SitterSaveRequest;
+import com.example.petcare.module.petsitter.dto.request.UpdateSitterRequest;
 import com.example.petcare.module.petsitter.dto.response.SitterResponse;
 import com.example.petcare.module.petsitter.service.PetsitterService;
 import com.example.petcare.module.schedule.entity.Schedule;
@@ -38,33 +39,21 @@ public class PetsitterController {
     }
 
     // 펫시터 정보 수정
+    @GetMapping("/init")
+    public ResponseEntity<Void> init() {
+        petsitterService.testInit();
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping
+    public ResponseEntity<SitterResponse> updateSitter(@RequestBody UpdateSitterRequest sitterSaveRequest) {
+        return ResponseEntity.ok(petsitterService.updatePetSitter(sitterSaveRequest));
+    }
 
     // 펫시터 탈퇴
-
-
-
-    @GetMapping("/test")
-    public void test() {
-        MemberResponse mr = memberService.signUp(new SignUpRequest(
-                "drasgon@naver.com",
-                "1234",
-                "jinjoowon",
-                "01026485941"
-        ));
-
-        petsitterService.testInit();
-
-        petsitterService.registerPetsitter(
-                new SitterSaveRequest(
-                        1L,
-                        "서울시 강남구",
-                        List.of("강아지", "고양이"),
-                        List.of("산책", "위탁돌봄"),
-                        8,
-                        16,
-                        15000
-                )
-        );
-
+    @DeleteMapping("/{petsitter-id}")
+    public ResponseEntity<Void> deleteSitter(@PathVariable("petsitter-id") Long petsitterId) {
+        petsitterService.deletePetSitter(petsitterId);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -3,6 +3,7 @@ package com.example.petcare.module.petsitter.service;
 import com.example.petcare.module.member.entity.Member;
 import com.example.petcare.module.member.service.MemberService;
 import com.example.petcare.module.petsitter.dto.request.SitterSaveRequest;
+import com.example.petcare.module.petsitter.dto.request.UpdateSitterRequest;
 import com.example.petcare.module.petsitter.dto.response.SitterResponse;
 import com.example.petcare.module.petsitter.entity.*;
 import com.example.petcare.module.petsitter.mapper.PetsitterMapper;
@@ -13,6 +14,7 @@ import jakarta.persistence.EntityExistsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,14 +75,30 @@ public class PetsitterService {
 
     @Transactional
     public void testInit() {
-        careRepository.save(new Care("산책"));
-        careRepository.save(new Care("위탁돌봄"));
-        careRepository.save(new Care("방문돌봄"));
 
-        speciesRepository.save(new Species("강아지"));
-        speciesRepository.save(new Species("고양이"));
-        speciesRepository.save(new Species("새"));
-        speciesRepository.save(new Species("파충류"));
+        if(!careRepository.existsByName("산책"))
+            careRepository.save(new Care("산책"));
+
+        if(!careRepository.existsByName("위탁돌봄"))
+            careRepository.save(new Care("위탁돌봄"));
+
+        if(!careRepository.existsByName("방문돌봄"))
+            careRepository.save(new Care("방문돌봄"));
+
+        if(!speciesRepository.existsByTopSpecies("강아지"))
+            speciesRepository.save(new Species("강아지"));
+
+        if(!speciesRepository.existsByTopSpecies("고양이"))
+            speciesRepository.save(new Species("고양이"));
+
+        if(!speciesRepository.existsByTopSpecies("새"))
+            speciesRepository.save(new Species("새"));
+
+        if(!speciesRepository.existsByTopSpecies("파충류"))
+            speciesRepository.save(new Species("파충류"));
+
+        if(!speciesRepository.existsByTopSpecies("기타"))
+            speciesRepository.save(new Species("기타"));
     }
 
     // 펫시터 검색 (상세 보기)
@@ -95,11 +113,34 @@ public class PetsitterService {
     }
 
     // 펫시터 상세 보기
+    @Transactional
+    public SitterResponse updatePetSitter(UpdateSitterRequest request) {
+        Petsitter petsitter = getPetSitterEntityById(request.getSitterId());
 
+        List<SitterCare> cares = findAllCareByNames(petsitter, request.getServices());
+        List<SitterSpecies> species = findAllSpeciesByNames(petsitter, request.getPets());
+
+        petsitter.updatePetsitter(
+                request.getLocation(),
+                request.getStartTime(),
+                request.getEndTime(),
+                request.getFee(),
+                cares,
+                species
+        );
+
+        return petsitterMapper.petSitterToResponse(petsitter);
+    }
     //
 
     @Transactional(readOnly = true)
     public Petsitter getPetSitterEntityById(Long id) {
         return petsitterRepository.findById(id).orElseThrow(EntityExistsException::new);
+    }
+
+    @Transactional
+    public void deletePetSitter(Long petsitterId) {
+        Petsitter sitter = getPetSitterEntityById(petsitterId);
+        sitter.getBaseEntity().setDeletedAt(LocalDateTime.now());
     }
 }

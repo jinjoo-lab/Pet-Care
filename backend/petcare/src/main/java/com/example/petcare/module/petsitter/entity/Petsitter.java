@@ -62,6 +62,22 @@ public class Petsitter implements Auditable {
         this.fee = fee;
     }
 
+    public void updatePetsitter
+            (String location, Integer startTime,
+             Integer endTime, Integer fee,
+             List<SitterCare> cares,
+             List<SitterSpecies> species
+             ) {
+        this.location = location;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.fee = fee;
+        this.sitterCare = cares;
+        this.sitterSpecies = species;
+    }
+
+
+
     public void updateMember(Member member) {
         this.member = member;
         member.updatePetsitter(this);
