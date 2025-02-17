@@ -50,41 +50,75 @@
       </div>
     </div>
 
-    <!-- 검색 필터 섹션 -->
+    <!-- 검색 조건 섹션 -->
     <div class="search-section">
-      <div class="search-filters">
-        <div class="filter-item">
-          <label for="location">위치</label>
-          <input id="location" type="text" v-model="filters.location" placeholder="위치 입력" />
+      <div class="search-row">
+        <div class="search-field">
+          <label>위치</label>
+          <input type="text" v-model="location" placeholder="서울시 강남구">
         </div>
-        <div class="filter-item">
-          <label>일자</label>
-          <input type="date" v-model="filters.date" />
+        
+        <div class="search-field">
+          <label>날짜</label>
+          <input type="date" v-model="date">
         </div>
-        <div class="filter-item">
+
+        <div class="search-field">
           <label>시작 시간</label>
-          <select v-model="filters.startTime" class="time-select">
+          <select v-model="startTime">
             <option v-for="hour in 24" :key="`start-${hour-1}`" :value="hour-1">
               {{ formatTime(hour-1) }}
             </option>
           </select>
         </div>
-        <div class="filter-item">
+
+        <div class="search-field">
           <label>종료 시간</label>
-          <select v-model="filters.endTime" class="time-select">
+          <select v-model="endTime">
             <option v-for="hour in 24" :key="`end-${hour-1}`" :value="hour-1">
               {{ formatTime(hour-1) }}
             </option>
           </select>
         </div>
-        <button @click="searchSitters" class="search-button">검색</button>
+      </div>
+
+      <div class="pet-types-row">
+        <label>동물 종류</label>
+        <div class="checkbox-group">
+          <label v-for="pet in availablePets" :key="pet.id" class="checkbox-label">
+            <input 
+              type="checkbox" 
+              :value="pet.id" 
+              v-model="selectedPets"
+            >
+            {{ pet.name }}
+          </label>
+        </div>
+      </div>
+
+      <div class="services-row">
+        <label>필요한 서비스</label>
+        <div class="checkbox-group">
+          <label v-for="service in availableServices" :key="service.id" class="checkbox-label">
+            <input 
+              type="checkbox" 
+              :value="service.id" 
+              v-model="selectedServices"
+            >
+            {{ service.name }}
+          </label>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button @click="search" class="search-button">검색</button>
       </div>
     </div>
 
     <!-- 검색 결과 섹션 -->
     <div class="search-results-container">
-      <div v-if="searchResults.length > 0" class="search-results">
-        <div v-for="schedule in searchResults" :key="schedule.id" class="sitter-card" @click="selectSchedule(schedule)">
+      <div v-if="filteredResults.length > 0" class="search-results">
+        <div v-for="schedule in filteredResults" :key="schedule.id" class="sitter-card" @click="selectSchedule(schedule)">
           <div class="sitter-info">
             <div class="card-header">
               <h3>{{ schedule.sitter.memberResponse.name }}의 서비스</h3>
@@ -189,17 +223,16 @@
 
 <script>
 import axios from 'axios';
+import { mapState } from 'vuex';
 
 export default {
   name: 'FindSitter',
   data() {
     return {
-      filters: {
-        location: '',
-        date: '',
-        startTime: 0,
-        endTime: 23
-      },
+      location: '',
+      date: '',
+      startTime: 0,
+      endTime: 23,
       searchResults: [],
       searched: false,
       myReservations: [], // 내 예약 목록
@@ -212,18 +245,39 @@ export default {
         petList: [],
         description: '',
         date: '',
-        memberId: 1, // TODO: 실제 로그인된 사용자 ID로 변경
+        memberId: null,
         scheduleId: null
-      }
+      },
+      selectedPets: [],
+      selectedServices: [],
+      availablePets: [
+        { id: '강아지', name: '강아지' },
+        { id: '고양이', name: '고양이' },
+        { id: '새', name: '새' },
+        { id: '파충류', name: '파충류' },
+        { id: '기타', name: '기타' }
+      ],
+      availableServices: [
+        { id: '산책', name: '산책' },
+        { id: '목욕', name: '목욕' },
+        { id: '돌봄', name: '돌봄' }
+      ]
     }
   },
   async created() {
     await this.fetchMyReservations();
   },
   methods: {
-    async searchSitters() {
+    async search() {
       try {
-        const response = await axios.post('/api/v1/schedule/list', this.filters);
+        const filters = {
+          location: this.location,
+          date: this.date,
+          startTime: this.startTime,
+          endTime: this.endTime
+        };
+
+        const response = await axios.post('/api/v1/schedule/list', filters);
         this.searchResults = response.data;
         this.searched = true;
       } catch (error) {
@@ -243,13 +297,13 @@ export default {
     async requestService(schedule) {
       this.selectedSchedule = schedule;
       this.reservationForm.scheduleId = schedule.id;
-      this.reservationForm.date = this.filters.date;
+      this.reservationForm.date = this.date;
       await this.fetchMyPets();
       this.isRequestModalOpen = true;
     },
     async fetchMyReservations() {
       try {
-        const memberId = 1; // TODO: 실제 로그인된 사용자 ID로 변경
+        const memberId = this.userInfo.id;
         const response = await axios.get(`/api/v1/reservations/list/${memberId}`);
         this.myReservations = response.data;
       } catch (error) {
@@ -285,7 +339,7 @@ export default {
     },
     async fetchMyPets() {
       try {
-        const memberId = 1; // TODO: 실제 로그인된 사용자 ID로 변경
+        const memberId = this.userInfo.id;
         const response = await axios.get(`/api/v1/pets/${memberId}`);
         this.myPets = response.data;
       } catch (error) {
@@ -311,29 +365,42 @@ export default {
         petList: [],
         description: '',
         date: '',
-        memberId: 1,
+        memberId: null,
         scheduleId: null
       };
     },
     async submitReservation() {
       try {
+        // 현재 로그인한 사용자의 ID 설정
+        this.reservationForm.memberId = this.userInfo.id;
+        
+        // 요청 전에 필수 데이터가 모두 있는지 확인
+        if (!this.reservationForm.memberId || 
+            !this.reservationForm.scheduleId || 
+            !this.reservationForm.date || 
+            this.reservationForm.petList.length === 0) {
+          alert('모든 필수 정보를 입력해주세요.');
+          return;
+        }
+
         await axios.post('/api/v1/reservations', this.reservationForm);
         this.closeRequestModal();
         // 예약 성공 후 예약 목록 새로고침
         await this.fetchMyReservations();
       } catch (error) {
         console.error('예약 요청 실패:', error);
+        alert('예약 요청에 실패했습니다.');
       }
     },
     async cancelReservation(reservationId) {
       try {
         const cancelRequest = {
-          userId: 1, // TODO: 실제 로그인된 사용자 ID로 변경
+          userId: this.userInfo.id,
           reservationId: reservationId
         };
         
         await axios.patch('/api/v1/reservations/cancel', cancelRequest);
-        await this.fetchMyReservations(); // 목록 새로고침
+        await this.fetchMyReservations();
       } catch (error) {
         console.error('예약 취소 실패:', error);
       }
@@ -361,6 +428,13 @@ export default {
         console.error('결제 처리 실패:', error);
       }
     }
+  },
+  computed: {
+    ...mapState(['userInfo']),
+    filteredResults() {
+      // 체크박스 선택과 관계없이 검색 결과 그대로 반환
+      return this.searchResults;
+    }
   }
 }
 </script>
@@ -374,27 +448,88 @@ export default {
 
 .search-section {
   background: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   margin-bottom: 2rem;
 }
 
-.search-filters {
+.search-row {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
   align-items: flex-end;
-  flex-wrap: wrap;
 }
 
-.filter-item {
+.search-field {
+  flex: 1;
+}
+
+.search-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.search-field input,
+.search-field select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.pet-types-row, .services-row {
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+}
+
+.pet-types-row label, .services-row label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.checkbox-group {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  gap: 2rem;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  padding: 0.5rem 0;
 }
 
-.filter-item label {
-  font-weight: bold;
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+  background-color: #f8f9fa;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  transition: all 0.2s;
+}
+
+.checkbox-label:hover {
+  background-color: #e9ecef;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.button-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.search-button {
+  min-width: 200px;
 }
 
 .search-results-container {
@@ -478,20 +613,6 @@ export default {
   border-radius: 4px;
   width: 100px;
   cursor: pointer;
-}
-
-.search-button {
-  padding: 0.5rem 2rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  height: fit-content;
-}
-
-.search-button:hover {
-  background-color: #0056b3;
 }
 
 .no-results {

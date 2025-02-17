@@ -341,12 +341,15 @@ export default {
       this.showUpdateModal();
     },
     async deleteSchedule(scheduleId) {
-      try {
-        await axios.delete(`/api/v1/schedule/${scheduleId}`)
-        console.log('일정 삭제 성공')
-        await this.fetchSchedules()
-      } catch (error) {
-        console.error('일정 삭제 실패:', error)
+      if (confirm('정말 이 일정을 삭제하시겠습니까?')) {
+        try {
+          await axios.delete(`/api/v1/schedule/${scheduleId}`);
+          // 삭제 후 일정 목록 새로고침
+          await this.fetchSchedules();
+        } catch (error) {
+          console.error('일정 삭제 실패:', error);
+          alert('일정 삭제에 실패했습니다.');
+        }
       }
     },
     showUpdateModal() {
@@ -838,5 +841,19 @@ export default {
   display: flex;
   justify-content: flex-end;
   margin-top: 1rem;
+}
+
+.delete-button {
+  padding: 0.5rem 1rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
 }
 </style> 

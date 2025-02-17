@@ -23,8 +23,8 @@ export default createStore({
         }
       }
     },
-    setPetSitterInfo(state, petSitterInfo) {
-      state.petSitterInfo = petSitterInfo
+    setPetSitterInfo(state, info) {
+      state.petSitterInfo = info;
     }
   },
   actions: {
@@ -41,14 +41,12 @@ export default createStore({
     },
     async fetchPetSitterInfo({ commit, state }) {
       try {
-        if (!state.userInfo) return null
-        
-        const response = await axios.get(`/api/v1/petsitter/${state.userInfo.id}`)
-        commit('setPetSitterInfo', response.data)
-        return response.data
+        if (!state.userInfo) return;
+
+        const response = await axios.get(`/api/v1/petsitter/${state.userInfo.id}`);
+        commit('setPetSitterInfo', response.data);
       } catch (error) {
-        console.error('펫시터 정보 조회 실패:', error)
-        return null
+        console.error('펫시터 정보 조회 실패:', error);
       }
     },
     async registerPetSitter({ commit }, petSitterInfo) {

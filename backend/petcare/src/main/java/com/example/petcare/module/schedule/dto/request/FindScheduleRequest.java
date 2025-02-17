@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,4 +14,6 @@ public class FindScheduleRequest {
     private String date;
     private Integer startTime;
     private Integer endTime;
+    private List<String> pets;
+    private List<String> services;
 }

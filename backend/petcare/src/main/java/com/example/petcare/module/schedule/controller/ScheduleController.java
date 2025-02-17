@@ -42,12 +42,17 @@ public class ScheduleController {
 
     @PostMapping("/list")
     public ResponseEntity<List<SimpleScheduleResponse>> findSchedules(@RequestBody FindScheduleRequest request) {
-        System.out.println("SKRR");
         return ResponseEntity.ok(scheduleService.findAllSchedules(request));
     }
 
     @PutMapping
     public ResponseEntity<ScheduleResponse> updateSchedule(@RequestBody UpdateScheduleRequest request) {
         return ResponseEntity.ok(scheduleService.updateSchedule(request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSchedule(@PathVariable("id") Long id) {
+        scheduleService.deleteSchedule(id);
+        return ResponseEntity.noContent().build();
     }
 }
