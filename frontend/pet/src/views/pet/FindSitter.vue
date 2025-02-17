@@ -81,35 +81,6 @@
           </select>
         </div>
       </div>
-
-      <div class="pet-types-row">
-        <label>동물 종류</label>
-        <div class="checkbox-group">
-          <label v-for="pet in availablePets" :key="pet.id" class="checkbox-label">
-            <input 
-              type="checkbox" 
-              :value="pet.id" 
-              v-model="selectedPets"
-            >
-            {{ pet.name }}
-          </label>
-        </div>
-      </div>
-
-      <div class="services-row">
-        <label>필요한 서비스</label>
-        <div class="checkbox-group">
-          <label v-for="service in availableServices" :key="service.id" class="checkbox-label">
-            <input 
-              type="checkbox" 
-              :value="service.id" 
-              v-model="selectedServices"
-            >
-            {{ service.name }}
-          </label>
-        </div>
-      </div>
-
       <div class="button-row">
         <button @click="search" class="search-button">검색</button>
       </div>

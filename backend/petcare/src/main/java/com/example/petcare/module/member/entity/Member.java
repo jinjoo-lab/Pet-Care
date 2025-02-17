@@ -6,6 +6,7 @@ import com.example.petcare.global.audit.BaseEntity;
 import com.example.petcare.module.pet.entity.Pet;
 import com.example.petcare.module.petsitter.entity.Petsitter;
 import com.example.petcare.module.reservation.entity.Reservation;
+import com.example.petcare.module.schedule.entity.Schedule;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
