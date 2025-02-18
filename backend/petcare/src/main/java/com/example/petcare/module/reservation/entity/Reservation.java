@@ -4,6 +4,7 @@ import com.example.petcare.global.audit.AuditListener;
 import com.example.petcare.global.audit.Auditable;
 import com.example.petcare.global.audit.BaseEntity;
 import com.example.petcare.module.member.entity.Member;
+import com.example.petcare.module.payment.entity.Payment;
 import com.example.petcare.module.schedule.entity.Schedule;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -47,6 +48,10 @@ public class Reservation implements Auditable {
     @OneToMany(mappedBy = "reservation", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<PetReservation> petReservations = new ArrayList<>();
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id")
+    private Payment payment;
+
     private String description;
 
     public Reservation(
@@ -66,6 +71,10 @@ public class Reservation implements Auditable {
 
     public void updateStatus(ReservationStatus status) {
         this.status = status;
+    }
+
+    public void updatePayment(Payment payment) {
+        this.payment = payment;
     }
 
     public void updateReservation(Integer startTime, Integer endTime, String description) {
