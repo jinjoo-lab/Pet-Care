@@ -9,6 +9,7 @@ import com.example.petcare.module.petsitter.entity.*;
 import com.example.petcare.module.petsitter.mapper.PetsitterMapper;
 import com.example.petcare.module.petsitter.repository.CareRepository;
 import com.example.petcare.module.petsitter.repository.PetsitterRepository;
+import com.example.petcare.module.petsitter.repository.SitterSpeciesRepository;
 import com.example.petcare.module.petsitter.repository.SpeciesRepository;
 import jakarta.persistence.EntityExistsException;
 import org.springframework.stereotype.Service;
@@ -25,16 +26,18 @@ public class PetsitterService {
     private final PetsitterMapper petsitterMapper;
     private final CareRepository careRepository;
     private final SpeciesRepository speciesRepository;
+    private final SitterSpeciesRepository sitterSpeciesRepository;
 
     public PetsitterService(
             PetsitterRepository petsitterRepository, MemberService memberService,
             PetsitterMapper petsitterMapper, CareRepository careRepository,
-            SpeciesRepository speciesRepository) {
+            SpeciesRepository speciesRepository, SitterSpeciesRepository sitterSpeciesRepository) {
         this.petsitterRepository = petsitterRepository;
         this.memberService = memberService;
         this.petsitterMapper = petsitterMapper;
         this.careRepository = careRepository;
         this.speciesRepository = speciesRepository;
+        this.sitterSpeciesRepository = sitterSpeciesRepository;
     }
 
     // 펫시터 등록
@@ -67,7 +70,7 @@ public class PetsitterService {
 
     @Transactional(readOnly = true)
     public List<SitterSpecies> findAllSpeciesByNames (Petsitter sitter, List<String> topSpecies) {
-            return speciesRepository.findAllByTopSpeciesIn(topSpecies).stream()
+            return speciesRepository.findAllByNameIn(topSpecies).stream()
                     .map(species -> new SitterSpecies(sitter, species))
                     .collect(Collectors.toList());
 
@@ -85,19 +88,19 @@ public class PetsitterService {
         if(!careRepository.existsByName("방문돌봄"))
             careRepository.save(new Care("방문돌봄"));
 
-        if(!speciesRepository.existsByTopSpecies("강아지"))
+        if(!speciesRepository.existsByName("강아지"))
             speciesRepository.save(new Species("강아지"));
 
-        if(!speciesRepository.existsByTopSpecies("고양이"))
+        if(!speciesRepository.existsByName("고양이"))
             speciesRepository.save(new Species("고양이"));
 
-        if(!speciesRepository.existsByTopSpecies("새"))
+        if(!speciesRepository.existsByName("새"))
             speciesRepository.save(new Species("새"));
 
-        if(!speciesRepository.existsByTopSpecies("파충류"))
+        if(!speciesRepository.existsByName("파충류"))
             speciesRepository.save(new Species("파충류"));
 
-        if(!speciesRepository.existsByTopSpecies("기타"))
+        if(!speciesRepository.existsByName("기타"))
             speciesRepository.save(new Species("기타"));
     }
 
@@ -122,6 +125,7 @@ public class PetsitterService {
     }
 
     // 펫시터 상세 보기
+
     @Transactional
     public SitterResponse updatePetSitter(UpdateSitterRequest request) {
         Petsitter petsitter = getPetSitterEntityById(request.getSitterId());
@@ -133,13 +137,13 @@ public class PetsitterService {
                 request.getLocation(),
                 request.getStartTime(),
                 request.getEndTime(),
-                request.getFee(),
-                cares,
-                species
+                request.getFee()
         );
 
         return petsitterMapper.petSitterToResponse(petsitter);
     }
+
+
     //
 
     @Transactional(readOnly = true)

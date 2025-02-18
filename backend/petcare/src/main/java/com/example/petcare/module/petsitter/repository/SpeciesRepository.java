@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface SpeciesRepository extends JpaRepository<Species, Long> {
-    List<Species> findAllByTopSpeciesIn(List<String> topSpecies);
+    List<Species> findAllByNameIn(List<String> name);
 
-    Boolean existsByTopSpecies(String name);
+    Boolean existsByName(String name);
 }

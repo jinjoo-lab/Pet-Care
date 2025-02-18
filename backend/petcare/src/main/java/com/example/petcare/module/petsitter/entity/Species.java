@@ -23,7 +23,7 @@ public class Species implements Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String topSpecies;
+    private String name;
 
     @Embedded
     @Setter
@@ -35,8 +35,8 @@ public class Species implements Auditable {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<SitterSpecies> sitterSpecies = new ArrayList<>();
 
-    public Species(String topSpecies) {
-        this.topSpecies = topSpecies;
+    public Species(String name) {
+        this.name = name;
     }
 
 }

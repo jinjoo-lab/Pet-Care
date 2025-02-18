@@ -50,7 +50,7 @@ public class PetsitterMapper {
         return species.stream()
                 .map(x -> new SpeciesResponse(
                         x.getSpecies().getId(),
-                        x.getSpecies().getTopSpecies()
+                        x.getSpecies().getName()
                 )).toList();
     }
 

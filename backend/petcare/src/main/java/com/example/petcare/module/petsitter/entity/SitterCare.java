@@ -15,15 +15,10 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted_at IS NULL")
 @EntityListeners(AuditListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SitterCare implements Auditable {
+public class SitterCare implements Auditable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Embedded
-    @Setter
-    @Column(nullable = false)
-    private BaseEntity baseEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id")
@@ -32,6 +27,11 @@ public class SitterCare implements Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "petsitter_id")
     private Petsitter petsitter;
+
+    @Embedded
+    @Setter
+    @Column(nullable = false)
+    private BaseEntity baseEntity;
 
     public SitterCare(Care service, Petsitter petsitter) {
         this.service = service;

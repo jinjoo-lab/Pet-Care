@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,12 +47,12 @@ public class Petsitter implements Auditable {
 
     @OneToMany(
             mappedBy = "petsitter",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+            cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE})
     private List<SitterSpecies> sitterSpecies = new ArrayList<>();
 
     @OneToMany(
             mappedBy = "petsitter",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE}
+            cascade = {CascadeType.PERSIST, CascadeType.DETACH, CascadeType.MERGE}
     )
     private List<SitterCare> sitterCare = new ArrayList<>();
 
@@ -64,19 +65,13 @@ public class Petsitter implements Auditable {
 
     public void updatePetsitter
             (String location, Integer startTime,
-             Integer endTime, Integer fee,
-             List<SitterCare> cares,
-             List<SitterSpecies> species
+             Integer endTime, Integer fee
              ) {
         this.location = location;
         this.startTime = startTime;
         this.endTime = endTime;
         this.fee = fee;
-        this.sitterCare = cares;
-        this.sitterSpecies = species;
     }
-
-
 
     public void updateMember(Member member) {
         this.member = member;
