@@ -165,16 +165,16 @@ export default {
         fee: 0
       },
       availablePets: [
-        { id: 'DOG', name: '강아지' },
-        { id: 'CAT', name: '고양이' },
-        { id: 'BIRD', name: '새' },
-        { id: 'REPTILE', name: '파충류' },
-        { id: 'OTHER', name: '기타' }
+        { id: '강아지', name: '강아지' },
+        { id: '고양이', name: '고양이' },
+        { id: '새', name: '새' },
+        { id: '파충류', name: '파충류' },
+        { id: '기타', name: '기타' }
       ],
       availableServices: [
-        { id: 'WALK', name: '산책' },
-        { id: 'BATH', name: '목욕' },
-        { id: 'CARE', name: '돌봄' }
+        { id: '산책', name: '산책' },
+        { id: '위탁돌봄', name: '위탁돌봄' },
+        { id: '방문돌봄', name: '방문돌봄' }
       ]
     }
   },
@@ -204,15 +204,14 @@ export default {
       this.editForm = {
         sitterId: Number(this.petSitterInfo.id),
         location: this.petSitterInfo.location,
-        pets: this.petSitterInfo.species.map(s => s.id),
-        services: this.petSitterInfo.services.map(s => s.id),
+        pets: this.petSitterInfo.species.map(s => s.name),
+        services: this.petSitterInfo.services.map(s => s.name),
         startTime: this.petSitterInfo.startTime,
         endTime: this.petSitterInfo.endTime,
         fee: this.petSitterInfo.timeFee
       };
       this.isEditing = true;
       
-      // 디버깅을 위한 로그 추가
       console.log('수정 폼 데이터:', this.editForm);
     },
     cancelEdit() {
@@ -220,12 +219,8 @@ export default {
     },
     async updateInfo() {
       try {
-        // petSitterInfo 데이터 확인
-        console.log('현재 펫시터 정보:', this.petSitterInfo);
-        console.log('petSitterInfo.petSitterId:', this.petSitterInfo.petSitterId);
-
         const requestData = {
-          sitterId: this.petSitterInfo.petSitterId,
+          sitterId: this.petSitterInfo.petSitterId,  // memberId -> sitterId로 변경
           location: this.editForm.location,
           pets: this.editForm.pets,
           services: this.editForm.services,
@@ -234,7 +229,6 @@ export default {
           fee: this.editForm.fee
         };
 
-        // 요청 데이터 확인
         console.log('요청 데이터:', requestData);
 
         await axios.put('/api/v1/petsitter', requestData);

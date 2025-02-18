@@ -2,6 +2,7 @@ package com.example.petcare.module.reservation.service;
 
 import com.example.petcare.module.member.entity.Member;
 import com.example.petcare.module.member.service.MemberService;
+import com.example.petcare.module.payment.entity.Payment;
 import com.example.petcare.module.pet.entity.Pet;
 import com.example.petcare.module.pet.repository.PetRepository;
 import com.example.petcare.module.reservation.dto.request.*;
@@ -118,7 +119,7 @@ public class ReservationService {
         return reservationMapper.reservationToReservationResponse(reservationRepository.findById(id).orElseThrow(EntityNotFoundException::new));
     }
 
-    private Reservation getReservationById(Long reservationId) {
+    public Reservation getReservationById(Long reservationId) {
         return reservationRepository.findById(reservationId).orElseThrow(EntityNotFoundException::new);
     }
 
@@ -135,7 +136,6 @@ public class ReservationService {
     public ReservationResponse paidReservation(UserReservationRequest request) {
         Reservation reservation = getReservationById(request.getReservationId());
         reservation.updateStatus(ReservationStatus.PAID);
-
         return reservationMapper.reservationToReservationResponse(reservation);
     }
 }
